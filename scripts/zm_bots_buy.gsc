@@ -206,7 +206,8 @@ pick_pap()
 // cost .var_e2ea5c9302351a97 ?? 950 (:3592), one bot at a time, range 1000 (Gambler x1.5)
 pick_box()
 {
-    if ( !isdefined( level.var_1bbb5557537e2c0c ) || gettime() < ( self.zb_box_next ?? 0 ) )
+    // original: no box cooldown during a Fire Sale. Flag "powerup_fire_sale_active" read as flag-get does (script_4c67f790177c4d64.gsc:265)
+    if ( !isdefined( level.var_1bbb5557537e2c0c ) || ( gettime() < ( self.zb_box_next ?? 0 ) && !fire_sale() ) )
         return 0;
     if ( isdefined( level.zb_box_bot ) && level.zb_box_bot != self )
         return 0;
@@ -290,9 +291,7 @@ do_buy()
 // should_take is reduced to "always take": BO7 has no weapon score table.
 box_take()
 {
-    self.zb_box_next = gettime() + 135000; // 3.9 round<=8 range 90-180 s midpoint (no verified round number / random builtin)
-    if ( ( self.zb_pers ?? "allrounder" ) == "gambler" )
-        self.zb_box_next = gettime() + 67500;
+    box_cd();
     wait 5.5;
     if ( !isdefined( self.zb_cand.var_aaebed696583903c ) || !isdefined( self.zb_cand.var_aaebed696583903c.var_4cf63ec91b753a3c ) || !( self.zb_cand.var_37f3a4cd8252c9f0 === self ) )
         return fail( "buy failed: box paid, no gun to take" );
@@ -318,8 +317,33 @@ box_take()
     if ( self function_e3b3cc459cc1f25b() === self.zb_w0 )
         return fail( "buy failed: box gun not taken" );
     self.zb_weapons_bought = ( self.zb_weapons_bought ?? 0 ) + 1;
+    box_cd();
     chat( "box", undefined );
     return finish( "buy box gun ok" );
+}
+
+// original box cooldown (zm_bo2_bots.gsc:1251): round <=8 90-180 s, <=15 240-450 s, else 480-900 s; starter guns 20-40 s; gambler x0.5.
+// shortcut: "starter guns" = no gun bought yet (BO7 has no weapon score table), use a weapon tier if one is found.
+box_cd()
+{
+    if ( self.zb_round <= 8 )
+        self.zb_box_cd = 90000 + function_de284a0228a3400e( 90000 ); // randomint
+    else if ( self.zb_round <= 15 )
+        self.zb_box_cd = 240000 + function_de284a0228a3400e( 210000 );
+    else
+        self.zb_box_cd = 480000 + function_de284a0228a3400e( 420000 );
+    if ( ( self.zb_weapons_bought ?? 0 ) == 0 )
+        self.zb_box_cd = 20000 + function_de284a0228a3400e( 20000 );
+    else if ( ( self.zb_pers ?? "allrounder" ) == "gambler" )
+        self.zb_box_cd = self.zb_box_cd * 0.5;
+    self.zb_box_next = gettime() + self.zb_box_cd;
+}
+
+fire_sale()
+{
+    if ( !isdefined( level.var_3c9cba73fc7b0e72 ) || !isdefined( level.var_3c9cba73fc7b0e72.var_2d8db9854390eecd ) || !isdefined( level.var_3c9cba73fc7b0e72.var_2d8db9854390eecd.var_a34b3b574ceb601d ) )
+        return 0;
+    return istrue( level.var_3c9cba73fc7b0e72.var_2d8db9854390eecd.var_a34b3b574ceb601d[ "powerup_fire_sale_active" ] );
 }
 
 bought()

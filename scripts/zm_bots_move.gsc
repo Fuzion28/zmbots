@@ -35,6 +35,11 @@ think()
         if ( !isalive( self ) || istrue( self.var_d0697a2251283e17 ) )
             continue;
         self.zb_mv_host = [[ level.zb_host ]]();
+        if ( isdefined( self.zb_mv_host ) && escape() )
+        {
+            stuck_reset();
+            continue;
+        }
         if ( !isdefined( self.zb_mv_host ) || any_downed() )
         {
             stuck_reset();
@@ -66,6 +71,7 @@ scan()
     self.zb_mv_n350 = 0;
     self.zb_mv_n430 = 0;
     self.zb_mv_n600 = 0;
+    self.zb_mv_n900 = 0;
     self.zb_mv_zs = function_926af5fe60499e85( "team_two_hundred" ); // getaiarray, ZM script_18317bad0c071e03.gsc:1811
     if ( !isdefined( self.zb_mv_zs ) )
         return;
@@ -84,7 +90,47 @@ scan()
             self.zb_mv_n430 = self.zb_mv_n430 + 1;
         if ( self.zb_mv_d < 600 )
             self.zb_mv_n600 = self.zb_mv_n600 + 1;
+        if ( self.zb_mv_d < 900 )
+            self.zb_mv_n900 = self.zb_mv_n900 + 1;
     }
+}
+
+// runs even while someone is downed: "last" = original build 44 last-alive mode (the last one up kites while a zombie
+// is within 900, the core skips the revive meanwhile); "swarm" = the core gave up a revive because the bot was surrounded
+escape()
+{
+    if ( isdefined( self.zb_busy ) )
+        return 0;
+    if ( gettime() < ( self.zb_rev_wait ?? 0 ) )
+        self.zb_mv_kind = "swarm";
+    else if ( ( level.zb_cfg_last_alive ?? 1 ) == 1 && isdefined( level.zb_last ) && self [[ level.zb_last ]]() )
+        self.zb_mv_kind = "last";
+    else
+        return 0;
+    scan();
+    if ( self.zb_mv_kind == "last" && self.zb_mv_n900 == 0 )
+        return 0;
+    self.zb_busy = "escape";
+    level.zb_status = "move escape " + self.zb_mv_kind + " " + self.name;
+    if ( isdefined( level.zb_chat ) )
+        self [[ level.zb_chat ]]( self.zb_mv_kind == "last" ? "retreat_last" : "retreat_swarm", undefined );
+    self.zb_mv_until = gettime() + ( self.zb_mv_kind == "last" ? 30000 : 4000 );
+    self.zb_mv_pick = 0;
+    while ( gettime() < self.zb_mv_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) )
+    {
+        if ( gettime() >= self.zb_mv_pick || ( isdefined( self.zb_mv_goal ) && distance( self.origin, self.zb_mv_goal ) < 48 ) )
+            if ( flee_pick() )
+                self.zb_mv_pick = gettime() + 1000;
+        wait 0.15;
+        scan();
+        if ( self.zb_mv_kind == "last" && ( self.zb_mv_n900 == 0 || !( self [[ level.zb_last ]]() ) ) )
+            break;
+    }
+    self function_cb0d368fa87a2b78(); // botclearscriptgoal
+    self.zb_mv_goal = undefined;
+    self.zb_mv_wgoal = undefined;
+    self.zb_busy = undefined;
+    return 1;
 }
 
 hp()
@@ -144,7 +190,7 @@ flee_pick()
     self.zb_mv_away = ( self.zb_mv_away[ 0 ], self.zb_mv_away[ 1 ], 0 );
     if ( length( self.zb_mv_away ) < 0.001 ) // SB script_14f857806c1ea0cc.gsc:391
         return 0;
-    self.zb_mv_goal = function_df9f501a2a0cbf4( self.origin + self.zb_mv_away / length( self.zb_mv_away ) * ( self.zb_mv_kind == "health" ? 450 : 250 ) ); // SB script_23db6f5c71b1807a.gsc:500
+    self.zb_mv_goal = function_df9f501a2a0cbf4( self.origin + self.zb_mv_away / length( self.zb_mv_away ) * ( self.zb_mv_kind == "kite" ? 250 : 450 ) ); // SB script_23db6f5c71b1807a.gsc:500
     if ( !isdefined( self.zb_mv_goal ) )
         return 0;
     self function_75794c5ddff5c061( self.zb_mv_goal, 48, "critical" ); // botsetscriptgoal
@@ -186,6 +232,9 @@ doors()
         if ( !isdefined( t ) || !isdefined( t.var_4cf63ec91b753a3c ) || istrue( t.var_4cf63ec91b753a3c.var_82e5b92a84918d29 ) || istrue( t.var_4cf63ec91b753a3c.var_df00f5fbf4a6d195 ) )
             continue;
         if ( ( t.script_noteworthy ?? "" ) == "barrier_unpurchaseable_trigger" || ( t.var_e2ea5c9302351a97 ?? 0 ) <= 0 )
+            continue;
+        // original bot_can_spend_on_map: on starter guns, keep 1500 after the door (shortcut: starter = no gun bought yet, no BO7 weapon tier)
+        if ( ( self.zb_weapons_bought ?? 0 ) == 0 && isdefined( self.var_189fe7075a0930a5 ) && ( self.var_189fe7075a0930a5[ #"hash_305523fec8a0505d" ] ?? 0 ) - t.var_e2ea5c9302351a97 < 1500 )
             continue;
         if ( gettime() < ( t.zb_fail ?? 0 ) || ( gettime() < ( t.zb_claim ?? 0 ) && t.zb_claimer != self ) )
             continue;

@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 3 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.2, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -26,7 +26,7 @@ To remove the mod, delete the `kronos\mods\zmbots\` folder.
 - They fight zombies with the game's own bot AI.
 - They revive downed players. At most 2 bots go for the same player; the others nearby guard them.
 - 500 health (1000 with Juggernog) and refilled reserve ammo, as in the original.
-- Each bot gets a personality: slayer, medic, gambler, engineer or allrounder.
+- Each bot gets a name from the original list and a personality: slayer, medic, gambler, engineer or allrounder.
   - Medic buys Quick Revive first.
   - Gambler uses the Mystery Box more.
   - Engineer opens doors from farther away.
@@ -41,15 +41,21 @@ To remove the mod, delete the `kronos\mods\zmbots\` folder.
 - Perks from round 8 (Juggernog, then Speed Cola, then Quick Revive, then the rest).
 - Wall guns and wall ammo.
 - Pack-a-Punch from round 10.
-- Mystery Box.
+- Mystery Box, with a cooldown that grows with the round (none during a Fire Sale).
 - Doors and debris near them, with their own points.
 
-They only buy when nobody is down, and only things within 1000 units of you, so they stay with the squad.
+With no gun bought yet, a bot keeps 1500 points after a door. They only buy when nobody is down, and only things within 1000 units of you, so they stay with the squad.
 
 ### Movement
 - They back off when their health is low and zombies are close.
 - They keep their distance from zombies.
 - They close in around you when your health is low.
+- The last bot standing kites the zombies and only revives when it is safe.
+- A bot surrounded while reviving backs off, then comes back.
+
+### Power-ups
+- Bots grab power-ups near them. No Nuke while zombies are alive, no Insta-Kill or Double Points when none is left.
+- The first bot to go for one calls it out: "Grabbing the Max Ammo!".
 - If a bot is stuck, it jumps, strafes, then picks a new goal.
 
 ### HUD and chatter
@@ -88,17 +94,20 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 | `zb_max_health` | 500 | Bot health, doubled with Juggernog (0 = game default) |
 | `zb_infinite_ammo` | 1 | Refill bot reserve ammo |
 | `zb_auto_teleport` | 0 | 1 = a bot far from you for 20 s teleports to you |
+| `zb_powerups` | 1 | Grab power-ups |
+| `zb_last_alive` | 1 | Last bot standing kites and revives only when safe |
 
 ## Not tested yet
 - Bot health 500/1000 and the ammo refill.
 - The 2-bot revive limit and guarding.
 - Wander further.
 - Buying perks, guns, Pack-a-Punch and the box.
+- Everything new in 0.3: power-ups, Fire Sale, box cooldown, names, the door money guard, last-alive mode and revive abandon.
 
 ## Not ported
 - Immunity to lava and map hazards.
 - Double Tap and Mule Kick (BO7 has no such perks).
-- Power-up rules, the box tier list, knife, grenade and shield use.
+- The box tier list, knife, grenade and shield use.
 - Grief (BO7 Zombies has no Grief).
 - More than 3 bots (the BO7 squad is 4 players).
 

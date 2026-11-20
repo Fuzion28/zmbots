@@ -19,6 +19,7 @@ autoexec init()
     level.zb_msg = &msg;
     level.zb_host = &host;
     level.zb_downed = &downed;
+    level.zb_last = &last_alive;
     level.zb_add = &add_bot;
     if ( !isdefined( level.zb_mods ) )
         level.zb_mods = [];
@@ -71,7 +72,7 @@ spawn_bots()
     while ( level.zb_i < level.zb_count )
     {
         level.zb_status = "adding bot " + ( level.zb_i + 1 ) + "/" + level.zb_count;
-        level.zb_added = addbot( "zmbot" );
+        level.zb_added = addbot( bot_name() );
         // addbot only gives a connecting client; zm_bots_client.gsc finishes the connect like BO6 spawn_bot_latent
         if ( !isdefined( level.zb_latent ) )
         {
@@ -163,11 +164,18 @@ bot_revive()
 {
     self.zb_rev = undefined;
     self.zb_guard = undefined;
-    if ( downed( self ) || istrue( self.zb_norevive ) )
+    // zb_rev_wait: a revive given up because the bot was surrounded; zm_bots_move.gsc escape() moves it out meanwhile
+    if ( downed( self ) || istrue( self.zb_norevive ) || gettime() < ( self.zb_rev_wait ?? 0 ) )
         return 0;
     foreach ( p in level.players )
         if ( p != self && downed( p ) && claimers( p, 0 ) < 2 && ( !isdefined( self.zb_rev ) || distance( self.origin, p.origin ) < distance( self.origin, self.zb_rev.origin ) ) )
             self.zb_rev = p;
+    // original build 44 (bot_last_alive_mode): the last one up only revives when no zombie is within 900 of it or of the downed player
+    if ( isdefined( self.zb_rev ) && ( level.zb_cfg_last_alive ?? 1 ) == 1 && last_alive() && ( function_e93520ec766414ac( self.origin, 900 ).size > 0 || function_e93520ec766414ac( self.zb_rev.origin, 900 ).size > 0 ) )
+    {
+        self.zb_rev = undefined;
+        return 0;
+    }
     if ( !isdefined( self.zb_rev ) )
     {
         foreach ( p in level.players )
@@ -194,12 +202,31 @@ bot_revive()
     self function_aba9ac6f872dc502( "use", 8 );
     self.zb_until = gettime() + 8500;
     while ( gettime() < self.zb_until && downed( self.zb_rev ) && isalive( self ) && !downed( self ) )
+    {
         wait 0.25;
+        // not in the original: surrounded (4+ zombies within 120) -> give up for 4 s, escape, then come back
+        if ( function_e93520ec766414ac( self.origin, 120 ).size >= 4 && downed( self.zb_rev ) )
+        {
+            self.zb_rev_wait = gettime() + 4000;
+            self.zb_rev = undefined;
+            level.zb_status = "revive abandoned, surrounded " + self.name;
+            return 1;
+        }
+    }
     if ( !downed( self.zb_rev ) )
     {
         self.zb_revives = ( isdefined( self.zb_revives ) ? self.zb_revives : 0 ) + 1;
         self notify( #"zb_revived", self.zb_rev );
     }
+    return 1;
+}
+
+// original bot_is_last_alive: no other player alive and up (level.zb_last for zm_bots_move.gsc)
+last_alive()
+{
+    foreach ( p in level.players )
+        if ( isdefined( p ) && p != self && isalive( p ) && !downed( p ) )
+            return 0;
     return 1;
 }
 
@@ -213,6 +240,22 @@ claimers( d, guard )
     return level.zb_claims;
 }
 
+// a random unused name from the original bots.txt list (addbot( name ) sets the bot's name); "zmbot" once all are used
+bot_name()
+{
+    if ( !isdefined( level.zb_names ) )
+        level.zb_names = [ "Rusty_Hinge", "GhostToast", "NoScopeNana", "TrainConductor", "CampingCarl", "Box_Gambler", "JuggerNOT", "MuleKickMike", "PaP_Pete", "DeadshotDan", "WallBuyWendy", "StaminUpSteve", "QuickRevQueen", "RayGunRita", "TeddyBearTony", "WindowBoarder", "LastStandLarry", "CrawlerCrusher", "NukeNoob", "SprintAndPray", "Round99Dreamer", "TrapLordTerry", "SlidingSally", "OlympiaOllie" ];
+    if ( level.zb_names.size == 0 )
+        return "zmbot";
+    level.zb_nm = level.zb_names[ function_de284a0228a3400e( level.zb_names.size ) ]; // randomint
+    level.zb_left = [];
+    foreach ( n in level.zb_names )
+        if ( n != level.zb_nm )
+            level.zb_left[ level.zb_left.size ] = n;
+    level.zb_names = level.zb_left;
+    return level.zb_nm;
+}
+
 // console "add" (original bot_console_add): one more bot if the 4-player squad has room
 add_bot()
 {
@@ -222,7 +265,7 @@ add_bot()
         msg( "^5Bots^7: squad full" );
         return;
     }
-    level.zb_added = addbot( "zmbot" );
+    level.zb_added = addbot( bot_name() );
     if ( isdefined( level.zb_added ) )
         level.zb_added thread [[ level.zb_latent ]]();
     wait_new_bot();

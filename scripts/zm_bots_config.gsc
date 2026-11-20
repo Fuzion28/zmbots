@@ -12,8 +12,8 @@
 autoexec init()
 {
     // ===================== USER SETTINGS: edit the second argument =====================
-    // Only settings a module really applies are listed. The original's other options (skill, max health, lava immunity,
-    // infinite ammo, knife/grenade/monkey use, fire sale, collision, emotes, boss callouts, smart flee, swarm, last-alive,
+    // Only settings a module really applies are listed. The original's other options (skill, lava immunity,
+    // knife/grenade/monkey use, collision, emotes, boss callouts, smart flee, swarm,
     // retreat boost/drive/far/shoot, wallshoot) have no BO7 port yet, see docs/limitations.md.
     level.zb_cfg_count = getdvarint( @"zb_count", 3 );                   // zm_bots: bots to add (1-3, 4-player squad)
     level.zb_cfg_fill = getdvarint( @"zb_fill", 0 );                     // zm_bots_fill: 1 = only fill the 4-player squad (bots = 4 - humans, at most zb_count)
@@ -29,6 +29,8 @@ autoexec init()
     level.zb_cfg_keep_distance = getdvarint( @"zb_keep_distance", 1 );   // bot_keep_distance
     level.zb_cfg_max_health = getdvarint( @"zb_max_health", 500 );       // bot_max_health: bot health, doubled with Juggernog (0 = game default)
     level.zb_cfg_infinite_ammo = getdvarint( @"zb_infinite_ammo", 1 );   // bot_infinite_ammo: refill bot reserve ammo every 5 s
+    level.zb_cfg_powerups = getdvarint( @"zb_powerups", 1 );             // bot_powerups: pick up power-ups (original rules for nuke / insta-kill / double points)
+    level.zb_cfg_last_alive = getdvarint( @"zb_last_alive", 1 );         // bot_last_alive_mode: the last one up kites and only revives when no zombie is within 900
     level.zb_cfg_auto_teleport =getdvarint( @"zb_auto_teleport", 0 );   // not in the original (it never teleports): 1 = a bot 1500+ from you for 20 s teleports to you
     // ===================================================================================
 
