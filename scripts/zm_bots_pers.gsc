@@ -5,7 +5,7 @@
 // What each one changes in the original, and who ports it here:
 //   slayer     grenade cluster -1: not ported (no grenade-throw module; the engine AI decides throws)
 //   medic      Quick Revive after Juggernog          -> perk module reads zb_pers
-//              up to 3 revivers instead of 2         -> nothing to port: the core sends every free bot, no claim limit
+//              up to 3 revivers instead of 2         -> core bot_revive reads zb_pers (3 instead of 2)
 //   gambler    box range x1.5, box cooldown x0.5     -> box module reads zb_pers
 //   engineer   door/debris range 500 instead of 300  -> door module reads zb_pers
 //   allrounder no change

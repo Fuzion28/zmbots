@@ -76,6 +76,8 @@ down_monitor()
     self notifyonplayercommand( "zb_down_press", "+actionslot 2" ); // function_5c73a3716d3cf7d0, zm script_2ffc9cc854107314.gsc:402
     self notifyonplayercommand( "zb_down_release", "-actionslot 2" ); // release form: srvbase script_59a28aa393c6bb32.gsc:710
     self.zb_down_last = 0;
+    self.zb_down_up = 0;
+    self thread down_release();
     for ( ;; )
     {
         self waittill( #"zb_down_press" );
@@ -88,12 +90,24 @@ down_monitor()
             continue;
         }
         self.zb_down_last = self.zb_down_at;
-        self waittill( #"zb_down_release" );
-        if ( gettime() - self.zb_down_at >= 700 )
+        // poll the release time instead of waittill: a lost release (menu, death) would freeze Dpad Down for good
+        while ( self.zb_down_up < self.zb_down_at && gettime() - self.zb_down_at < 2000 )
+            wait 0.05;
+        if ( self.zb_down_up >= self.zb_down_at && self.zb_down_up - self.zb_down_at >= 700 )
         {
             self.zb_down_last = 0;
             self thread move_here();
         }
+    }
+}
+
+down_release()
+{
+    self endon( #"disconnect" );
+    for ( ;; )
+    {
+        self waittill( #"zb_down_release" );
+        self.zb_down_up = gettime();
     }
 }
 
@@ -220,14 +234,16 @@ move_here()
             if ( !isdefined( p.zb_mh_spot ) || distance( p.zb_mh_spot, self.zb_mh_hit ) > 220 )
                 p.zb_mh_spot = getclosestpointonnavmesh( self.zb_mh_hit );
             if ( !isdefined( p.zb_mh_spot ) || distance( p.zb_mh_spot, self.zb_mh_hit ) > 220 )
-            {
-                self iprintlnbold( "^5Bots^7: they can't stand there" );
-                return;
-            }
+                continue;
             p.zb_stay_pos = p.zb_mh_spot;
             p.zb_mode = "stay";
             self.zb_mh_n = self.zb_mh_n + 1;
         }
+    if ( self.zb_mh_n == 0 )
+    {
+        self iprintlnbold( "^5Bots^7: they can't stand there" );
+        return;
+    }
     level.zb_cmd_mode = "stay";
     level.zb_status = "move here " + self.zb_mh_n;
     self iprintlnbold( "Bots: hold that position (" + self.zb_mh_n + ")" );
@@ -239,6 +255,8 @@ move_here()
 teleport()
 {
     self endon( #"disconnect" );
+    if ( self.sessionstate != "playing" )
+        return;
     if ( !self isonground() )
     {
         self iprintlnbold( "You must be on the ground to teleport the bots." );
@@ -295,12 +313,13 @@ console_loop()
         level.zb_cmdv = getdvar( @"zb_cmd", "" );
         if ( !isdefined( level.zb_cmdv ) || level.zb_cmdv == "" )
             continue;
-        setdvar( @"zb_cmd", "" );
+        // cleared only once a host exists, so a command typed before the host spawns is kept
         if ( !isdefined( level.zb_host ) )
             continue;
         level.zb_cmdh = [[ level.zb_host ]]();
         if ( !isdefined( level.zb_cmdh ) )
             continue;
+        setdvar( @"zb_cmd", "" );
         if ( level.zb_cmdv == "stay" || level.zb_cmdv == "wander" || level.zb_cmdv == "wander_further" || level.zb_cmdv == "follow" )
             level.zb_cmdh thread set_mode_cmd();
         else if ( level.zb_cmdv == "regroup" )

@@ -76,7 +76,7 @@ spawn_bots()
         // addbot only gives a connecting client; zm_bots_client.gsc finishes the connect like BO6 spawn_bot_latent
         if ( !isdefined( level.zb_latent ) )
         {
-            level.zb_status = "^1E no latent (zm_bots_client.gsc not linked)";
+            msg( "^1zmbots E no latent (zm_bots_client.gsc not linked)" ); // errors show even without zb_debug
             return;
         }
         if ( isdefined( level.zb_added ) )
@@ -84,7 +84,7 @@ spawn_bots()
         wait_new_bot();
         if ( !isdefined( level.zb_bot ) )
         {
-            level.zb_status = "^1E bot " + ( level.zb_i + 1 ) + " missing, lat " + level.zb_lat;
+            msg( "^1zmbots E bot " + ( level.zb_i + 1 ) + " missing, lat " + level.zb_lat );
             return;
         }
         level.zb_bot.zmbots = 1;
@@ -96,18 +96,21 @@ spawn_bots()
     level.zb_status = "^2" + level.zb_count + " bots ready";
 }
 
-// sets level.zb_bot to a bot not yet taken over, or undefined after 15 s; polls so a missed notify cannot hang
+// sets level.zb_bot to a bot not yet taken over (marked at once so add and spawn cannot both take it), or undefined after 60 s (latent waits 60 s); polls so a missed notify cannot hang
 wait_new_bot()
 {
     level.zb_bot = undefined;
     level.zb_t = 0;
-    while ( level.zb_t < 60 && !isdefined( level.zb_bot ) )
+    while ( level.zb_t < 240 && !isdefined( level.zb_bot ) )
     {
         wait 0.25;
         level.zb_t = level.zb_t + 1;
         foreach ( p in level.players )
-            if ( isdefined( p ) && isbot( p ) && !isdefined( p.zmbots ) )
+            if ( !isdefined( level.zb_bot ) && isdefined( p ) && isbot( p ) && !isdefined( p.zmbots ) )
+            {
                 level.zb_bot = p;
+                p.zmbots = 1;
+            }
     }
 }
 
@@ -168,7 +171,7 @@ bot_revive()
     if ( downed( self ) || istrue( self.zb_norevive ) || gettime() < ( self.zb_rev_wait ?? 0 ) )
         return 0;
     foreach ( p in level.players )
-        if ( p != self && downed( p ) && claimers( p, 0 ) < 2 && ( !isdefined( self.zb_rev ) || distance( self.origin, p.origin ) < distance( self.origin, self.zb_rev.origin ) ) )
+        if ( p != self && downed( p ) && claimers( p, 0 ) < ( self.zb_pers === "medic" ? 3 : 2 ) && ( !isdefined( self.zb_rev ) || distance( self.origin, p.origin ) < distance( self.origin, self.zb_rev.origin ) ) )
             self.zb_rev = p;
     // original build 44 (bot_last_alive_mode): the last one up only revives when no zombie is within 900 of it or of the downed player
     if ( isdefined( self.zb_rev ) && ( level.zb_cfg_last_alive ?? 1 ) == 1 && last_alive() && ( function_e93520ec766414ac( self.origin, 900 ).size > 0 || function_e93520ec766414ac( self.zb_rev.origin, 900 ).size > 0 ) )
@@ -200,8 +203,8 @@ bot_revive()
     self function_b217ccc053191d61( self.zb_rev.origin + ( 0, 0, 20 ), 8, "script_forced" );
     wait 0.3;
     self function_aba9ac6f872dc502( "use", 8 );
-    self.zb_until = gettime() + 8500;
-    while ( gettime() < self.zb_until && downed( self.zb_rev ) && isalive( self ) && !downed( self ) )
+    self.zb_rev_until = gettime() + 8500;
+    while ( gettime() < self.zb_rev_until && downed( self.zb_rev ) && isalive( self ) && !downed( self ) )
     {
         wait 0.25;
         // not in the original: surrounded (4+ zombies within 120) -> give up for 4 s, escape, then come back
@@ -213,7 +216,7 @@ bot_revive()
             return 1;
         }
     }
-    if ( !downed( self.zb_rev ) )
+    if ( isdefined( self.zb_rev ) && isalive( self.zb_rev ) && !downed( self.zb_rev ) ) // not bled out or gone
     {
         self.zb_revives = ( isdefined( self.zb_revives ) ? self.zb_revives : 0 ) + 1;
         self notify( #"zb_revived", self.zb_rev );
@@ -284,9 +287,11 @@ status_loop()
 {
     for ( ;; )
     {
+        // debug lines only with zb_debug 1 (errors call msg directly)
         if ( !istrue( level.zb_quiet ) && isdefined( level.zb_status ) && level.zb_status != "" )
         {
-            msg( "^3zmbots " + level.zb_status );
+            if ( ( level.zb_cfg_debug ?? 0 ) == 1 )
+                msg( "^3zmbots " + level.zb_status );
             level.zb_status = "";
         }
         wait 3;

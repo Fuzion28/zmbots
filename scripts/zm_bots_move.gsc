@@ -248,7 +248,7 @@ doors()
     self.zb_door.zb_claim = gettime() + 4000;
     self.zb_door.zb_claimer = self;
     self thread [[ level.zb_door_buy ]](); // zm_bots_move_api.gsc
-    wait 1.5;
+    wait 3; // bought flag may only be set after the door anim; 1.5 s counted some buys as failures
     if ( isdefined( self.zb_door ) && istrue( self.zb_door.var_4cf63ec91b753a3c.var_82e5b92a84918d29 ) )
     {
         self.zb_doors_opened = ( self.zb_doors_opened ?? 0 ) + 1;
@@ -262,7 +262,8 @@ doors()
 // bot_update_wander / get_wander_location: random navmesh spot 120-600 around the host, radius 100, not within 150 of another bot's spot
 wander()
 {
-    if ( self.zb_mode != "wander" && self.zb_mode != "wander_further" )
+    // another module owns movement (buy, power-up): drop the spot, its goal was cleared or replaced
+    if ( isdefined( self.zb_busy ) || ( self.zb_mode != "wander" && self.zb_mode != "wander_further" ) )
     {
         self.zb_mv_wgoal = undefined;
         self.zb_mv_wandering = undefined;
@@ -306,7 +307,7 @@ unstuck()
         stuck_reset();
         return;
     }
-    if ( distance( self.origin, self.zb_mv_anchor ) > 120 || ( self.zb_mode == "follow" && distance( self.origin, self.zb_mv_host.origin ) < 300 ) )
+    if ( distance( self.origin, self.zb_mv_anchor ) > 120 || ( self.zb_mode == "follow" && distance( self.origin, self.zb_mv_host.origin ) < 400 ) ) // above the core follow range (350) so a parked bot is not "stuck"
     {
         self.zb_mv_anchor = self.origin;
         self.zb_mv_anct = gettime();
@@ -316,7 +317,7 @@ unstuck()
     {
         self.zb_mv_stage = 1;
         level.zb_status = "move unstuck jump " + self.name;
-        self function_aba9ac6f872dc502( "jump" ); // ZM script_18d7039086efdb01.gsc:2064
+        self function_aba9ac6f872dc502( "jump", 0.2 ); // ZM script_18d7039086efdb01.gsc:2064
     }
     else if ( self.zb_mv_stage == 1 && gettime() - self.zb_mv_anct > 6000 )
     {

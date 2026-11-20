@@ -31,6 +31,7 @@ autoexec init()
     level.zb_cfg_infinite_ammo = getdvarint( @"zb_infinite_ammo", 1 );   // bot_infinite_ammo: refill bot reserve ammo every 5 s
     level.zb_cfg_powerups = getdvarint( @"zb_powerups", 1 );             // bot_powerups: pick up power-ups (original rules for nuke / insta-kill / double points)
     level.zb_cfg_last_alive = getdvarint( @"zb_last_alive", 1 );         // bot_last_alive_mode: the last one up kites and only revives when no zombie is within 900
+    level.zb_cfg_debug = getdvarint( @"zb_debug", 0 );                   // 1 = show the "zmbots ..." debug lines and the per-round stats lines
     level.zb_cfg_auto_teleport =getdvarint( @"zb_auto_teleport", 0 );   // not in the original (it never teleports): 1 = a bot 1500+ from you for 20 s teleports to you
     // ===================================================================================
 

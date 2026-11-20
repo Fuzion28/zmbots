@@ -42,7 +42,7 @@ think()
     wait 8;
     for ( ;; )
     {
-        wait 5;
+        wait 2; // kite and power-ups hold zb_busy often; a 5 s poll rarely found the bot free
         if ( !idle() )
             continue;
         read_pts();

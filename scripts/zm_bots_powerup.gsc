@@ -70,7 +70,7 @@ go()
     }
     self.zb_pu_until = gettime() + 10000;
     self.zb_pu_reset = 0;
-    while ( isdefined( self.zb_pu ) && gettime() < self.zb_pu_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && !any_downed() )
+    while ( isdefined( self.zb_pu ) && active( self.zb_pu ) && gettime() < self.zb_pu_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && !any_downed() )
     {
         if ( gettime() >= self.zb_pu_reset )
         {
@@ -79,12 +79,23 @@ go()
         }
         wait 0.25;
     }
-    if ( isdefined( self.zb_pu ) )
+    if ( isdefined( self.zb_pu ) && active( self.zb_pu ) )
         self.zb_pu.zb_pu_fail = gettime() + 15000;
     else
         level.zb_status = "powerup grabbed by " + self.name;
     self function_cb0d368fa87a2b78(); // botclearscriptgoal
     self.zb_busy = undefined;
+}
+
+// grabbed power-ups leave the active list (script_427ce33ec0c820cf.gsc:1107) before the entity may be deleted
+active( pu )
+{
+    if ( !isdefined( level.var_27becec7ea16c97c ) || !isdefined( level.var_27becec7ea16c97c.var_d06f4fd319d1ef1c ) )
+        return 0;
+    foreach ( p in level.var_27becec7ea16c97c.var_d06f4fd319d1ef1c )
+        if ( p === pu )
+            return 1;
+    return 0;
 }
 
 // original bot_powerup_display_name; undefined = no callout

@@ -2,7 +2,7 @@
 
 // Mode HUD and bot stats, ported from zm_bo2_bots.gsc bot_mode_hud_think and the "status" line of bot_cmd.
 // - HUD: "BOTS: FOLLOW/STAY/WANDER" (MIXED when bots differ) plus one stats line per bot, drawn by lua/zm_bots_hud_post.lua
-// - at each round start every human also gets one iprintln line per bot
+// - with zb_debug 1, every human also gets one iprintln line per bot at each round start
 // - writes self.zb_kills (from the stats player.kills) and self.zb_downs (counted on the downed edge)
 // level.zb_cfg_hud 0 (zb_hud) hides the HUD and stops the stats lines.
 
@@ -38,7 +38,7 @@ think()
     }
 }
 
-// original texts; mode is per bot here, so MIXED when the bots disagree (wander_further has no BO7 port)
+// original texts; mode is per bot here, so MIXED when the bots disagree
 mode_text()
 {
     level.zb_hud_mode = undefined;
@@ -95,7 +95,7 @@ round_stats()
     for ( ;; )
     {
         level waittill( #"on_round_start" );
-        if ( ( level.zb_cfg_hud ?? 1 ) == 0 )
+        if ( ( level.zb_cfg_hud ?? 1 ) == 0 || ( level.zb_cfg_debug ?? 0 ) == 0 ) // the HUD panel shows the same stats
             continue;
         foreach ( p in level.players )
             if ( isdefined( p ) && !isbot( p ) )

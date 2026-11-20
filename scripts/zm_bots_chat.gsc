@@ -124,7 +124,7 @@ random_bot()
 {
     level.zb_chat_bots = [];
     foreach ( p in level.players )
-        if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) && isalive( p ) )
+        if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) && isalive( p ) && !istrue( p.var_d0697a2251283e17 ) )
             level.zb_chat_bots[ level.zb_chat_bots.size ] = p;
     if ( level.zb_chat_bots.size == 0 )
         return undefined;
