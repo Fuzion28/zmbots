@@ -55,7 +55,10 @@ host()
 
 spawn_bots()
 {
-    wait 4;
+    // Cursed / relic modes check every player that spawns in the first 10 s (dvar default 10000 ms, srvbase
+    // script_60b9c6f799b0d5d8.gsc function_b46b00a6fd556694) and can end the match; a bot fails that check.
+    // Spawning after the window skips it. shortcut: waits in every mode, gate on the gametype if the delay bothers.
+    wait 12;
     // level.zb_count may be set by the config module (zm_bots_config.gsc); 3 = full 4-player squad
     if ( !isdefined( level.zb_count ) )
         level.zb_count = 3;
