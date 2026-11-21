@@ -234,7 +234,7 @@ doors()
         if ( ( t.script_noteworthy ?? "" ) == "barrier_unpurchaseable_trigger" || ( t.var_e2ea5c9302351a97 ?? 0 ) <= 0 )
             continue;
         // original bot_can_spend_on_map: on starter guns, keep 1500 after the door (shortcut: starter = no gun bought yet, no BO7 weapon tier)
-        if ( ( self.zb_weapons_bought ?? 0 ) == 0 && isdefined( self.var_189fe7075a0930a5 ) && ( self.var_189fe7075a0930a5[ #"hash_305523fec8a0505d" ] ?? 0 ) - t.var_e2ea5c9302351a97 < 1500 )
+        if ( ( self.zb_weapons_bought ?? 0 ) == 0 && isdefined( self.var_8b69ecbd466a79fa ) && ( self.var_8b69ecbd466a79fa[ "score" ] ?? 0 ) - t.var_e2ea5c9302351a97 < 1500 )
             continue;
         if ( gettime() < ( t.zb_fail ?? 0 ) || ( gettime() < ( t.zb_claim ?? 0 ) && t.zb_claimer != self ) )
             continue;
@@ -247,9 +247,11 @@ doors()
         return 0;
     self.zb_door.zb_claim = gettime() + 4000;
     self.zb_door.zb_claimer = self;
+    self.zb_mv_pts0 = isdefined( self.var_8b69ecbd466a79fa ) ? ( self.var_8b69ecbd466a79fa[ "score" ] ?? 0 ) : 0;
     self thread [[ level.zb_door_buy ]](); // zm_bots_move_api.gsc
     wait 3; // bought flag may only be set after the door anim; 1.5 s counted some buys as failures
-    if ( isdefined( self.zb_door ) && istrue( self.zb_door.var_4cf63ec91b753a3c.var_82e5b92a84918d29 ) )
+    // in game the doors opened but the counter stayed 0: the bought flag is not set (or not there), so points spent count too
+    if ( isdefined( self.zb_door ) && ( istrue( self.zb_door.var_4cf63ec91b753a3c.var_82e5b92a84918d29 ) || ( isdefined( self.var_8b69ecbd466a79fa ) && ( self.var_8b69ecbd466a79fa[ "score" ] ?? 0 ) < self.zb_mv_pts0 ) ) )
     {
         self.zb_doors_opened = ( self.zb_doors_opened ?? 0 ) + 1;
         level.zb_status = "move door opened by " + self.name;

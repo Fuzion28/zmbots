@@ -77,7 +77,7 @@ hud_loop()
             level.zb_hud_txt = mode_text();
             foreach ( b in level.players )
                 if ( isdefined( b ) && isbot( b ) && isdefined( b.zmbots ) )
-                    level.zb_hud_txt = level.zb_hud_txt + "|" + b.name + "  " + ( b.zb_pers ?? "allrounder" ) + "  " + bot_state( b ) + "  hp " + b.health + "  K " + ( b.zb_kills ?? 0 ) + " D " + ( b.zb_downs ?? 0 ) + " R " + ( b.zb_revives ?? 0 ) + "  perks " + ( b.zb_perks_bought ?? 0 ) + " guns " + ( b.zb_weapons_bought ?? 0 ) + " doors " + ( b.zb_doors_opened ?? 0 );
+                    level.zb_hud_txt = level.zb_hud_txt + "|" + b.name + "  " + ( b.zb_pers ?? "allrounder" ) + "  " + bot_state( b ) + "  hp " + b.health + "  K " + ( b.zb_kills ?? 0 ) + " D " + ( b.zb_downs ?? 0 ) + " R " + ( b.zb_revives ?? 0 ) + "  perks " + perks_owned( b ) + " guns " + ( b.zb_weapons_bought ?? 0 ) + " doors " + ( b.zb_doors_opened ?? 0 );
         }
         if ( !( level.zb_hud_txt === level.zb_hud_said ) )
         {
@@ -108,7 +108,18 @@ print_stats()
 {
     foreach ( b in level.players )
         if ( isdefined( b ) && isbot( b ) && isdefined( b.zmbots ) )
-            self iprintln( "^5" + b.name + "^7 " + ( b.zb_pers ?? "allrounder" ) + " " + bot_state( b ) + " " + ( b.zb_mode ?? "follow" ) + " | hp " + b.health + " | K " + ( b.zb_kills ?? 0 ) + " D " + ( b.zb_downs ?? 0 ) + " R " + ( b.zb_revives ?? 0 ) + " | $" + ( b.zb_spent ?? 0 ) + " | perks " + ( b.zb_perks_bought ?? 0 ) + " guns " + ( b.zb_weapons_bought ?? 0 ) + " doors " + ( b.zb_doors_opened ?? 0 ) ); // iprintln: srvbase script_2d110487966779fc.gsc:18
+            self iprintln( "^5" + b.name + "^7 " + ( b.zb_pers ?? "allrounder" ) + " " + bot_state( b ) + " " + ( b.zb_mode ?? "follow" ) + " | hp " + b.health + " | K " + ( b.zb_kills ?? 0 ) + " D " + ( b.zb_downs ?? 0 ) + " R " + ( b.zb_revives ?? 0 ) + " | $" + ( b.zb_spent ?? 0 ) + " | perks " + perks_owned( b ) + " guns " + ( b.zb_weapons_bought ?? 0 ) + " doors " + ( b.zb_doors_opened ?? 0 ) ); // iprintln: srvbase script_2d110487966779fc.gsc:18
+}
+
+// perks the bot owns, bought or given (FuzMenu): the game's per-player perk list var_298fe7dcdb17fe4f[ perk ] = 1
+// (srvbase script_25a8fa2ac8997425.gsc:275 set, :377/:428 cleared). Count in a field: int locals read back undefined.
+perks_owned( b )
+{
+    b.zb_perks_n = 0;
+    foreach ( v in b.var_298fe7dcdb17fe4f ?? [] )
+        if ( istrue( v ) )
+            b.zb_perks_n = b.zb_perks_n + 1;
+    return b.zb_perks_n;
 }
 
 bot_state( b )

@@ -8,8 +8,7 @@
 // botsetflag( flag, value ) = builtin function_9dfcfc6e680af2db, "disable_attack": srvbase script_4f2ec5e36fe18c11.gsc:198,
 // script_eaf05a0beebb7d4.gsc:3353.
 // First try with only disable_attack: in game the bots still killed the last zombie, so the hold also lowers the
-// bot's weapons with disableweapons / enableweapons (plain builtins, as FuzMenu zm_mod_menu.gsc:2063/2067),
-// and prints a line when it starts so a test shows whether the last-zombie check fired at all.
+// bot's weapons with disableweapons / enableweapons (plain builtins, as FuzMenu zm_mod_menu.gsc:2063/2067).
 // Tested in game (2026-11-21): the bots no longer kill the last zombie. Melee not checked on its own.
 
 autoexec init()
@@ -34,7 +33,6 @@ think()
             {
                 self disableweapons();
                 self.zb_hold = 1;
-                announce();
             }
         }
         else if ( self.zb_hold )
@@ -42,7 +40,6 @@ think()
             self function_9dfcfc6e680af2db( "disable_attack", 0 );
             self enableweapons();
             self.zb_hold = 0;
-            level.zb_keep_said = undefined;
         }
     }
 }
@@ -56,17 +53,6 @@ last_one()
         if ( isdefined( z ) && isalive( z ) && !istrue( z.var_79d93e09fbd8c147 ) ) // skipped by the game's own count too (function_45bd2c072cb4631a)
             self.zb_keep_n = self.zb_keep_n + 1;
     return self.zb_keep_n == 1;
-}
-
-// one line per hold, not one per bot
-announce()
-{
-    if ( isdefined( level.zb_keep_said ) )
-        return;
-    level.zb_keep_said = 1;
-    foreach ( p in level.players )
-        if ( isdefined( p ) && !isbot( p ) )
-            p iprintln( "^5zmbots^7: last zombie, bots hold fire" );
 }
 
 human_up()

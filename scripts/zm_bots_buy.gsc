@@ -44,10 +44,15 @@ think()
     {
         wait 2; // kite and power-ups hold zb_busy often; a 5 s poll rarely found the bot free
         if ( !idle() )
+        {
+            // shown by "zb_cmd diag": why this bot is not shopping right now
+            self.zb_buy_why = ( self.zb_mode ?? "follow" ) == "stay" ? "mode stay" : ( isdefined( self.zb_busy ) ? "busy " + self.zb_busy : "someone down" );
             continue;
+        }
         read_pts();
         // original round gates bot_perk_round / bot_pap_round; round number field from ZM round script (srvbase script_77dca3b46e01eb1e.gsc:289)
         self.zb_round = isdefined( level.var_6781718da4f78d1c ) ? ( level.var_6781718da4f78d1c.var_392f37fdba9f6777 ?? 1 ) : 1;
+        self.zb_buy_why = "nothing in range";
         if ( ( self.zb_round >= ( level.zb_cfg_perk_round ?? 8 ) && pick_perk() ) || pick_wall() || ( self.zb_round >= ( level.zb_cfg_pap_round ?? 10 ) && pick_pap() ) || pick_box() )
             do_buy();
     }
@@ -70,12 +75,14 @@ someone_down()
     return 0;
 }
 
-// essence = currency #"hash_305523fec8a0505d" in player.var_189fe7075a0930a5 (srvbase script_3a9d7a7cfee99885.gsc:771)
+// points = player.var_8b69ecbd466a79fa[ "score" ]: what the points getter returns (points function_8f0a9502ff7321a,
+// srvbase script_2301d27669c5a079.gsc:416 -> script_267a69c97e3c6c7c.gsc:562). FuzMenu gives points through that setter.
+// The old read (var_189fe7075a0930a5, a debug HUD field) was always empty, so bots never bought anything.
 read_pts()
 {
     self.zb_pts = 0;
-    if ( isdefined( self.var_189fe7075a0930a5 ) && isdefined( self.var_189fe7075a0930a5[ #"hash_305523fec8a0505d" ] ) )
-        self.zb_pts = self.var_189fe7075a0930a5[ #"hash_305523fec8a0505d" ];
+    if ( isdefined( self.var_8b69ecbd466a79fa ) && isdefined( self.var_8b69ecbd466a79fa[ "score" ] ) )
+        self.zb_pts = self.var_8b69ecbd466a79fa[ "score" ];
 }
 
 // owned perks: player.var_298fe7dcdb17fe4f[ specialty ] (script_25a8fa2ac8997425.gsc:275 set, :471-475 has-perk read)
@@ -265,7 +272,6 @@ do_buy()
     self.zb_spent = ( self.zb_spent ?? 0 ) + ( self.zb_pts0 - self.zb_pts );
     if ( self.zb_kind == "perk" )
     {
-        self.zb_perks_bought = ( self.zb_perks_bought ?? 0 ) + 1;
         chat( "perk", self.zb_name );
         return finish( "buy perk " + self.zb_name + " ok" );
     }
@@ -374,6 +380,7 @@ finish( text )
     if ( level.zb_box_bot === self )
         level.zb_box_bot = undefined;
     self.zb_busy = undefined;
+    self.zb_buy_why = text;
     level.zb_status = text;
     return 1;
 }

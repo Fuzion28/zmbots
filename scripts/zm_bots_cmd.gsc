@@ -355,12 +355,13 @@ console_loop()
     }
 }
 
-// original "diag": one line per bot with what the anti-stuck sees (mode, busy task, stuck stage, distance to you)
+// original "diag": one line per bot with what the anti-stuck sees (mode, busy task, stuck stage, distance to you),
+// plus points and the last buy result or why the bot is not shopping (zm_bots_buy.gsc zb_buy_why; not in the original)
 diag()
 {
     foreach ( p in level.players )
         if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) )
-            self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_mode ?? "?" ) + " busy " + ( p.zb_busy ?? "-" ) + " stuck " + ( p.zb_mv_stage ?? 0 ) + " dist " + int( distance( p.origin, self.origin ) ) );
+            self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_mode ?? "?" ) + " busy " + ( p.zb_busy ?? "-" ) + " stuck " + ( p.zb_mv_stage ?? 0 ) + " dist " + int( distance( p.origin, self.origin ) ) + " $" + ( isdefined( p.var_8b69ecbd466a79fa ) ? ( p.var_8b69ecbd466a79fa[ "score" ] ?? "?" ) : "?" ) + " buy: " + ( p.zb_buy_why ?? "-" ) );
 }
 
 // original "unstick" (bot_soft_reset): drop every goal and task, the bots pick a fresh one next tick

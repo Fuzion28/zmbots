@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 3 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.3, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3.4, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -59,7 +59,7 @@ With no gun bought yet, a bot keeps 1500 points after a door. They only buy when
 - If a bot is stuck, it jumps, strafes, then picks a new goal.
 
 ### HUD and chatter
-- A panel on the left shows the bot mode, then one line per bot: personality, state, health, kills, downs, revives, perks, guns and doors.
+- A panel on the left shows the bot mode, then one line per bot: personality, state, health, kills, downs, revives, perks owned, guns bought and doors opened.
 - The bots talk in the kill feed with the original lines: "I'm down! Need a revive!", "Reviving <name>!", "I'm back in! Let's go!" and more.
 
 ## Controls
@@ -103,7 +103,7 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 - Bot health 500/1000 and the ammo refill.
 - The 2-bot revive limit and guarding.
 - Wander further.
-- Buying perks, guns, Pack-a-Punch and the box.
+- Buying guns, Pack-a-Punch and the box.
 - Everything new in 0.3: power-ups, Fire Sale, box cooldown, names, the door money guard, last-alive mode and revive abandon.
 
 ## Not ported
