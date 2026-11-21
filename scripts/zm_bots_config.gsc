@@ -33,6 +33,7 @@ autoexec init()
     level.zb_cfg_last_alive = getdvarint( @"zb_last_alive", 1 );         // bot_last_alive_mode: the last one up kites and only revives when no zombie is within 900
     level.zb_cfg_debug = getdvarint( @"zb_debug", 0 );                   // 1 = show the "zmbots ..." debug lines and the per-round stats lines
     level.zb_cfg_auto_teleport =getdvarint( @"zb_auto_teleport", 0 );   // not in the original (it never teleports): 1 = a bot 1500+ from you for 20 s teleports to you
+    level.zb_cfg_keep_last = getdvarint( @"zb_keep_last", 0 );         // not in the original: 1 = bots stop shooting when one zombie is left (round fully spawned)
     // ===================================================================================
 
     // clamps from the original
@@ -46,7 +47,7 @@ autoexec init()
         level.zb_cfg_retreat_health = 90;
     if ( level.zb_cfg_mode != "stay" && level.zb_cfg_mode != "wander" && level.zb_cfg_mode != "wander_further" )
         level.zb_cfg_mode = "follow";
-    // the core reads level.zb_count about 6 s after the host spawns
+    // the core reads level.zb_count about 14 s after the host spawns
     level.zb_count = level.zb_cfg_count;
     if ( level.zb_cfg_fill == 1 )
         level thread apply_fill();

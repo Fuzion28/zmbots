@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 3 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.2, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3.3, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -97,6 +97,7 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 | `zb_auto_teleport` | 0 | 1 = a bot far from you for 20 s teleports to you |
 | `zb_powerups` | 1 | Grab power-ups |
 | `zb_last_alive` | 1 | Last bot standing kites and revives only when safe |
+| `zb_keep_last` | 0 | 1 = bots stop shooting when one zombie is left, so you decide when the round ends (console: `set zb_cmd keeplast` toggles it) |
 
 ## Not tested yet
 - Bot health 500/1000 and the ammo refill.

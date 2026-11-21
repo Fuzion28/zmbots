@@ -302,7 +302,7 @@ status()
             self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_pers ?? "allrounder" ) + " " + ( p.zb_mode ?? "?" ) + ( istrue( p.var_d0697a2251283e17 ) ? " ^1DOWN^7" : "" ) + " | hp " + p.health + " | K " + ( p.zb_kills ?? 0 ) + " D " + ( p.zb_downs ?? 0 ) + " R " + ( p.zb_revives ?? 0 ) );
 }
 
-// original bot_console_command_think: "set zb_cmd <stay|wander|follow|regroup|teleport|movehere|pers|status|help>".
+// original bot_console_command_think: "set zb_cmd <stay|wander|follow|regroup|teleport|movehere|pers|status|help>" (+ keeplast, not in the original).
 // getdvar/setdvar with @"name": FuzMenu zm_mod_menu.gsc:1153 (getdvar) and :91 (setdvar).
 // The order comes from the first human. regroup = everyone walks back to you (follow); teleport = the original's regroup.
 console_loop()
@@ -339,10 +339,19 @@ console_loop()
             level.zb_cmdh thread diag();
         else if ( level.zb_cmdv == "unstick" )
             level.zb_cmdh thread unstick_all();
+        else if ( level.zb_cmdv == "keeplast" )
+        {
+            // toggles the zm_bots_keep.gsc setting (zb_keep_last)
+            level.zb_cfg_keep_last = ( ( level.zb_cfg_keep_last ?? 0 ) == 1 ) ? 0 : 1;
+            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: leave the last zombie " + ( level.zb_cfg_keep_last == 1 ? "^2on" : "^1off" ) );
+            // test aid: what zm_bots_keep.gsc sees right now (alive AI on the zombie team, round fully spawned flag)
+            level.zb_cmdn = function_926af5fe60499e85( "team_two_hundred" ).size;
+            level.zb_cmdh iprintln( "^5zb_cmd^7: zombie AI " + level.zb_cmdn + ", round spawned " + ( isdefined( level.var_a009ab14ee0d3223 ) ? ( level.var_a009ab14ee0d3223.var_59c4f3931d764b9c ?? "undef" ) : "no struct" ) );
+        }
         else if ( level.zb_cmdv == "add" && isdefined( level.zb_add ) )
             level thread [[ level.zb_add ]]();
         else
-            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: help | status | diag | stay | wander | wander_further | follow | regroup | teleport | movehere | pers | unstick | add" );
+            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: help | status | diag | stay | wander | wander_further | follow | regroup | teleport | movehere | pers | unstick | keeplast | add" );
     }
 }
 
