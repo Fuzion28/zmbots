@@ -1,7 +1,7 @@
 -- zmbots HUD: shows the text that zm_bots_hud.gsc writes to dvar zb_hudtxt, one line per "|" piece, top-left.
 -- GSC hud elems do not show in BO7, so this uses the same native LUI technique as FuzMenu's zm_splitter_post.lua
 -- (dvar read by Dvar.GetDvarString, UIStyledText labels, a hidden element with Wait(16) as timer).
-local LINES=6
+local LINES=8
 local X,Y,W,ROWH,SIZE=24,470,1000,22,17
 
 local C=rawget(_G,"CLUA")

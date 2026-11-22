@@ -26,16 +26,20 @@ think()
     self.zb_pfail = [];
     // 3.11 order, BO7 names (has-perk string args: script_30ff79340e09d7d0.gsc:63, script_25a8fa2ac8997425.gsc:576,
     // script_2167bb17f6da435d.gsc:99, script_2d65125a9787d413.gsc:101, script_1ed5c8921b4c1572.gsc:128).
-    // Double Tap, Mule Kick, Electric Cherry, movefaster: no BO7 counterpart found.
+    // BO7 names: Double Tap = specialty_d_mod (icon ui_icon_perks_double_tap, script_2bdf8eafdb703418.gsc:987),
+    // Mule Kick = specialty_z_mod (3rd weapon slot check, script_1667bc66bcc6e6e2.gsc:3356; inferred).
+    // Electric Cherry, movefaster: no BO7 counterpart found.
     self.zb_order = [ "specialty_juggernog" ];
     if ( ( self.zb_pers ?? "allrounder" ) == "medic" )
         self.zb_order[ self.zb_order.size ] = "specialty_quickrevive";
     self.zb_order[ self.zb_order.size ] = "specialty_speedcola";
     if ( ( self.zb_pers ?? "allrounder" ) != "medic" )
         self.zb_order[ self.zb_order.size ] = "specialty_quickrevive";
+    self.zb_order[ self.zb_order.size ] = "specialty_d_mod";
     self.zb_order[ self.zb_order.size ] = "specialty_phd_flopper";
     self.zb_order[ self.zb_order.size ] = "specialty_deadshot";
     self.zb_order[ self.zb_order.size ] = "specialty_staminup";
+    self.zb_order[ self.zb_order.size ] = "specialty_z_mod";
     self.zb_order[ self.zb_order.size ] = "specialty_elemental_pop";
     self.zb_order[ self.zb_order.size ] = "specialty_vulture_aid";
     self.zb_order[ self.zb_order.size ] = "specialty_death_perception";

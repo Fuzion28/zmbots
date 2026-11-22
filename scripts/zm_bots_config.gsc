@@ -15,8 +15,8 @@ autoexec init()
     // Only settings a module really applies are listed. The original's other options (skill, lava immunity,
     // knife/grenade/monkey use, collision, emotes, boss callouts, smart flee, swarm,
     // retreat boost/drive/far/shoot, wallshoot) have no BO7 port yet, see docs/limitations.md.
-    level.zb_cfg_count = getdvarint( @"zb_count", 3 );                   // zm_bots: bots to add (1-3, 4-player squad)
-    level.zb_cfg_fill = getdvarint( @"zb_fill", 0 );                     // zm_bots_fill: 1 = only fill the 4-player squad (bots = 4 - humans, at most zb_count)
+    level.zb_cfg_count = getdvarint( @"zb_count", 3 );                   // zm_bots: bots to add (1-7, 8-player squad; 5 bots tested in game 2026-11-22)
+    level.zb_cfg_fill = getdvarint( @"zb_fill", 0 );                     // zm_bots_fill: 1 = only fill the 8-player squad (bots = 8 - humans, at most zb_count)
     level.zb_cfg_mode = getdvar( @"zb_mode", "wander" );                 // zm_bot_default_mode: stay | wander | wander_further | follow (default wander, as the original)
     level.zb_cfg_hud = getdvarint( @"zb_hud", 1 );                       // zm_bot_hud: mode HUD
     level.zb_cfg_chatter = getdvarint( @"zb_chatter", 1 );               // zm_bot_chatter: bot chat lines
@@ -39,8 +39,8 @@ autoexec init()
     // clamps from the original
     if ( level.zb_cfg_count < 1 )
         level.zb_cfg_count = 1;
-    if ( level.zb_cfg_count > 3 )
-        level.zb_cfg_count = 3;
+    if ( level.zb_cfg_count > 7 )
+        level.zb_cfg_count = 7;
     if ( level.zb_cfg_retreat_health < 30 )
         level.zb_cfg_retreat_health = 30;
     if ( level.zb_cfg_retreat_health > 90 )
@@ -53,7 +53,7 @@ autoexec init()
         level thread apply_fill();
 }
 
-// zm_bots_fill: bots = 4 - humans (squad size 4), at most zb_count, at least 1.
+// zm_bots_fill: bots = 8 - humans (squad size 8), at most zb_count, at least 1.
 // shortcut: counts humans present ~1 s after the first one spawns; later joiners don't lower it.
 apply_fill()
 {
@@ -64,7 +64,7 @@ apply_fill()
     foreach ( p in level.players )
         if ( isdefined( p ) && !isbot( p ) )
             level.zb_cfg_humans = level.zb_cfg_humans + 1;
-    level.zb_count = 4 - level.zb_cfg_humans;
+    level.zb_count = 8 - level.zb_cfg_humans;
     if ( level.zb_count > level.zb_cfg_count )
         level.zb_count = level.zb_cfg_count;
     if ( level.zb_count < 1 )

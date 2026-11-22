@@ -1,10 +1,10 @@
 # ZM Bots
 
-AI teammates for BO7 Zombies on Kronos. Up to 3 bots join your squad: they fight, revive you, buy perks and guns, open doors and follow your orders.
+AI teammates for BO7 Zombies on Kronos. Up to 7 bots join your squad: they fight, revive you, buy perks and guns, open doors and follow your orders.
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.4, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3.5, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -22,10 +22,12 @@ To remove the mod, delete the `kronos\mods\zmbots\` folder.
 ## Features
 
 ### Bots
-- Up to 3 bots join the host's squad (4 players in all).
+- Up to 7 bots join the host's squad (8 players in all; 5 bots tested).
+  The game only shows names and squad colors for 4 players, so bots past the third have no name above their head. They still play normally.
 - They fight zombies with the game's own bot AI.
 - They revive downed players. At most 2 bots go for the same player; the others nearby guard them.
 - 500 health (1000 with Juggernog) and refilled reserve ammo, as in the original.
+- They put armor plates back in when they have plates and took no armor damage for 2 s.
 - Each bot gets a name from the original list and a personality: slayer, medic, gambler, engineer or allrounder.
   - Medic buys Quick Revive first.
   - Gambler uses the Mystery Box more.
@@ -38,7 +40,7 @@ To remove the mod, delete the `kronos\mods\zmbots\` folder.
 - **Wander further:** roam the map, up to 3000 units away.
 
 ### Buying
-- Perks from round 8 (Juggernog, then Speed Cola, then Quick Revive, then the rest).
+- Perks from round 8 (Juggernog, Speed Cola, Quick Revive, Double Tap, PhD, Deadshot, Stamin-Up, Mule Kick, then the rest).
 - Wall guns and wall ammo.
 - Pack-a-Punch from round 10.
 - Mystery Box, with a cooldown that grows with the round (none during a Fire Sale).
@@ -79,8 +81,8 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 
 | Dvar | Default | What it does |
 |---|---|---|
-| `zb_count` | 3 | Number of bots (1-3) |
-| `zb_fill` | 0 | 1 = only fill the empty slots of the 4-player squad |
+| `zb_count` | 3 | Number of bots (1-7) |
+| `zb_fill` | 0 | 1 = only fill the empty slots of the 8-player squad |
 | `zb_mode` | wander | Start mode: stay, wander, wander_further or follow |
 | `zb_hud` | 1 | Show the HUD panel |
 | `zb_chatter` | 1 | Bot chat lines |
@@ -104,14 +106,13 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 - The 2-bot revive limit and guarding.
 - Wander further.
 - Buying guns, Pack-a-Punch and the box.
+- New in 0.3.5: armor plates, Double Tap / Mule Kick buys, more than 5 bots.
 - Everything new in 0.3: power-ups, Fire Sale, box cooldown, names, the door money guard, last-alive mode and revive abandon.
 
 ## Not ported
 - Immunity to lava and map hazards.
-- Double Tap and Mule Kick (BO7 has no such perks).
 - The box tier list, knife, grenade and shield use.
 - Grief (BO7 Zombies has no Grief).
-- More than 3 bots (the BO7 squad is 4 players).
 
 ## Credits
 - **RlKk01**: original *ZM Bots* mod for BO2 Zombies (Plutonium), with GerardS0406, BySc and techboy04gaming.

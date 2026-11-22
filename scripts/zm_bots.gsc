@@ -59,7 +59,7 @@ spawn_bots()
     // script_60b9c6f799b0d5d8.gsc function_b46b00a6fd556694) and can end the match; a bot fails that check.
     // Spawning after the window skips it. shortcut: waits in every mode, gate on the gametype if the delay bothers.
     wait 12;
-    // level.zb_count may be set by the config module (zm_bots_config.gsc); 3 = full 4-player squad
+    // level.zb_count may be set by the config module (zm_bots_config.gsc); 7 = full 8-player squad
     if ( !isdefined( level.zb_count ) )
         level.zb_count = 3;
     // bots already in the lobby (Kronos test_bots) are taken over, not respawned
@@ -262,11 +262,11 @@ bot_name()
     return level.zb_nm;
 }
 
-// console "add" (original bot_console_add): one more bot if the 4-player squad has room
+// console "add" (original bot_console_add): one more bot if the 8-player squad has room
 add_bot()
 {
     level.zb_have = level.players.size;
-    if ( level.zb_have >= 4 || !isdefined( level.zb_latent ) )
+    if ( level.zb_have >= 8 || !isdefined( level.zb_latent ) )
     {
         msg( "^5Bots^7: squad full" );
         return;
