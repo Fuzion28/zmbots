@@ -110,7 +110,7 @@ perk_spec( s )
 // machine cost .var_e2ea5c9302351a97 (script_4b576523c81e6ee3.gsc:327-329); the real price can rise per perk owned (:861), the verify catches that
 perk_ok( s, spec )
 {
-    return !has_perk( spec ) && gettime() >= ( self.zb_pfail[ spec ] ?? 0 ) && distance( s.origin, self.zb_h.origin ) < 1000 && self.zb_pts >= ( s.var_e2ea5c9302351a97 ?? 2000 );
+    return !has_perk( spec ) && gettime() >= ( self.zb_pfail[ spec ] ?? 0 ) && distance( s.origin, self.origin ) < 1000 && self.zb_pts >= ( s.var_e2ea5c9302351a97 ?? 2000 );
 }
 
 pick_perk()
@@ -160,7 +160,7 @@ pick_wall()
     {
         if ( !isdefined( w ) || !isdefined( w.var_f9b6c5834058f21c ) || !isdefined( w.var_f9b6c5834058f21c.cost ) || !isdefined( w.var_f9b6c5834058f21c.var_2752c96850e281e8 ) )
             continue;
-        if ( distance( w.origin, self.zb_h.origin ) > 1000 || self.zb_pts < w.var_f9b6c5834058f21c.cost )
+        if ( distance( w.origin, self.origin ) > 1000 || self.zb_pts < w.var_f9b6c5834058f21c.cost )
             continue;
         if ( owns_base( w.var_f9b6c5834058f21c.var_2752c96850e281e8 ) )
             continue;
@@ -179,7 +179,7 @@ pick_wall()
         // ammo: keep 2x the price so ammo does not eat perk money. No ammo-full check: the game's check is private
         // (function_d8176f86ff361ba, Kronos refuses to link it); the wall buy refuses a full gun and the 120 s cooldown applies.
         foreach ( w in level.var_caf65b937e9cbfaf )
-            if ( !isdefined( self.zb_cand ) && isdefined( w ) && isdefined( w.var_f9b6c5834058f21c ) && isdefined( w.var_f9b6c5834058f21c.cost ) && self.zb_cur.var_1b57e3034f84a054 === w.var_f9b6c5834058f21c.var_2752c96850e281e8 && distance( w.origin, self.zb_h.origin ) < 1000 && self.zb_pts >= w.var_f9b6c5834058f21c.cost * 2 )
+            if ( !isdefined( self.zb_cand ) && isdefined( w ) && isdefined( w.var_f9b6c5834058f21c ) && isdefined( w.var_f9b6c5834058f21c.cost ) && self.zb_cur.var_1b57e3034f84a054 === w.var_f9b6c5834058f21c.var_2752c96850e281e8 && distance( w.origin, self.origin ) < 1000 && self.zb_pts >= w.var_f9b6c5834058f21c.cost * 2 )
                 self.zb_cand = w;
         if ( !isdefined( self.zb_cand ) )
             return 0;
@@ -202,7 +202,7 @@ pick_pap()
         return 0;
     self.zb_cand = undefined;
     foreach ( m in level.var_db52bcfd04d45a7a )
-        if ( !isdefined( self.zb_cand ) && isdefined( m ) && isdefined( m.var_370acb837a3a86c3 ) && isdefined( m.var_370acb837a3a86c3.var_4cf63ec91b753a3c ) && distance( m.var_370acb837a3a86c3.origin, self.zb_h.origin ) < 1000 )
+        if ( !isdefined( self.zb_cand ) && isdefined( m ) && isdefined( m.var_370acb837a3a86c3 ) && isdefined( m.var_370acb837a3a86c3.var_4cf63ec91b753a3c ) && distance( m.var_370acb837a3a86c3.origin, self.origin ) < 1000 )
             self.zb_cand = m;
     if ( !isdefined( self.zb_cand ) )
         return 0;
@@ -213,6 +213,7 @@ pick_pap()
     return 1;
 }
 
+// Ranges (1000, box 1000/1500) are measured from the bot, not the host: a wandering bot shopped only near the host and often gave up (tester report, unverified).
 // 3.9: active box (.var_f14b2b4820b635e7, script_4ccf8f7e270f2426.gsc:2130), not open (interact .var_6365ea93403efebd :2201/:2239),
 // cost .var_e2ea5c9302351a97 ?? 950 (:3592), one bot at a time, range 1000 (Gambler x1.5)
 pick_box()
@@ -227,7 +228,7 @@ pick_box()
         self.zb_range = 1500;
     self.zb_cand = undefined;
     foreach ( b in level.var_1bbb5557537e2c0c )
-        if ( !isdefined( self.zb_cand ) && isdefined( b ) && istrue( b.var_f14b2b4820b635e7 ) && isdefined( b.var_97c6497c84d770a ) && isdefined( b.var_97c6497c84d770a.var_4cf63ec91b753a3c ) && !istrue( b.var_97c6497c84d770a.var_4cf63ec91b753a3c.var_6365ea93403efebd ) && distance( b.var_97c6497c84d770a.origin, self.zb_h.origin ) < self.zb_range && self.zb_pts >= ( b.var_e2ea5c9302351a97 ?? 950 ) )
+        if ( !isdefined( self.zb_cand ) && isdefined( b ) && istrue( b.var_f14b2b4820b635e7 ) && isdefined( b.var_97c6497c84d770a ) && isdefined( b.var_97c6497c84d770a.var_4cf63ec91b753a3c ) && !istrue( b.var_97c6497c84d770a.var_4cf63ec91b753a3c.var_6365ea93403efebd ) && distance( b.var_97c6497c84d770a.origin, self.origin ) < self.zb_range && self.zb_pts >= ( b.var_e2ea5c9302351a97 ?? 950 ) )
             self.zb_cand = b;
     if ( !isdefined( self.zb_cand ) )
         return 0;

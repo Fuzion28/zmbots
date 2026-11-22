@@ -4,7 +4,7 @@
 // - HUD: "BOTS: FOLLOW/STAY/WANDER" (MIXED when bots differ) plus one stats line per bot, drawn by lua/zm_bots_hud_post.lua
 // - with zb_debug 1, every human also gets one iprintln line per bot at each round start
 // - writes self.zb_kills (from the stats player.kills) and self.zb_downs (counted on the downed edge)
-// level.zb_cfg_hud 0 (zb_hud) hides the HUD and stops the stats lines.
+// level.zb_cfg_hud (zb_hud): 0 hides the HUD and stops the stats lines, 1 = mode line only (tester: the per-bot lines were too much), 2 = mode + per-bot lines.
 
 autoexec init()
 {
@@ -75,9 +75,10 @@ hud_loop()
         if ( ( level.zb_cfg_hud ?? 1 ) != 0 )
         {
             level.zb_hud_txt = mode_text();
-            foreach ( b in level.players )
-                if ( isdefined( b ) && isbot( b ) && isdefined( b.zmbots ) )
-                    level.zb_hud_txt = level.zb_hud_txt + "|" + b.name + "  " + ( b.zb_pers ?? "allrounder" ) + "  " + bot_state( b ) + "  hp " + b.health + "  K " + ( b.zb_kills ?? 0 ) + " D " + ( b.zb_downs ?? 0 ) + " R " + ( b.zb_revives ?? 0 ) + "  perks " + perks_owned( b ) + " guns " + ( b.zb_weapons_bought ?? 0 ) + " doors " + ( b.zb_doors_opened ?? 0 );
+            if ( level.zb_cfg_hud == 2 )
+                foreach ( b in level.players )
+                    if ( isdefined( b ) && isbot( b ) && isdefined( b.zmbots ) )
+                        level.zb_hud_txt = level.zb_hud_txt + "|" + b.name + "  " + ( b.zb_pers ?? "allrounder" ) + "  " + bot_state( b ) + "  hp " + b.health + "  K " + ( b.zb_kills ?? 0 ) + " D " + ( b.zb_downs ?? 0 ) + " R " + ( b.zb_revives ?? 0 ) + "  perks " + perks_owned( b ) + " guns " + ( b.zb_weapons_bought ?? 0 ) + " doors " + ( b.zb_doors_opened ?? 0 );
         }
         if ( !( level.zb_hud_txt === level.zb_hud_said ) )
         {

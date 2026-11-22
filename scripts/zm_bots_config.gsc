@@ -18,7 +18,7 @@ autoexec init()
     level.zb_cfg_count = getdvarint( @"zb_count", 3 );                   // zm_bots: bots to add (1-7, 8-player squad; 5 bots tested in game 2026-11-22)
     level.zb_cfg_fill = getdvarint( @"zb_fill", 0 );                     // zm_bots_fill: 1 = only fill the 8-player squad (bots = 8 - humans, at most zb_count)
     level.zb_cfg_mode = getdvar( @"zb_mode", "wander" );                 // zm_bot_default_mode: stay | wander | wander_further | follow (default wander, as the original)
-    level.zb_cfg_hud = getdvarint( @"zb_hud", 1 );                       // zm_bot_hud: mode HUD
+    level.zb_cfg_hud = getdvarint( @"zb_hud", 1 );                       // zm_bot_hud: 0 = off, 1 = mode line only, 2 = mode line + one stats line per bot
     level.zb_cfg_chatter = getdvarint( @"zb_chatter", 1 );               // zm_bot_chatter: bot chat lines
     level.zb_cfg_hints = getdvarint( @"zb_hints", 1 );                   // zm_bot_hints: control hint for humans after 6 s
     level.zb_cfg_perk_round = getdvarint( @"zb_perk_round", 8 );         // bot_perk_round: first round for perk buys

@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 7 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.5, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3.6, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -46,7 +46,7 @@ To remove the mod, delete the `kronos\mods\zmbots\` folder.
 - Mystery Box, with a cooldown that grows with the round (none during a Fire Sale).
 - Doors and debris near them, with their own points.
 
-With no gun bought yet, a bot keeps 1500 points after a door. They only buy when nobody is down, and only things within 1000 units of you, so they stay with the squad.
+With no gun bought yet, a bot keeps 1500 points after a door. They only buy when nobody is down, and only things within 1000 units of themselves (1500 for the box with a Gambler), so a wandering bot shops where it is.
 
 ### Movement
 - They back off when their health is low and zombies are close.
@@ -84,7 +84,7 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 | `zb_count` | 3 | Number of bots (1-7) |
 | `zb_fill` | 0 | 1 = only fill the empty slots of the 8-player squad |
 | `zb_mode` | wander | Start mode: stay, wander, wander_further or follow |
-| `zb_hud` | 1 | Show the HUD panel |
+| `zb_hud` | 1 | HUD panel: 0 = off, 1 = bot mode only, 2 = mode + one stats line per bot |
 | `zb_chatter` | 1 | Bot chat lines |
 | `zb_hints` | 1 | Control hint at the start |
 | `zb_perk_round` | 8 | First round for perk buys |
@@ -106,6 +106,7 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 - The 2-bot revive limit and guarding.
 - Wander further.
 - Buying guns, Pack-a-Punch and the box.
+- New in 0.3.6: compact HUD (zb_hud 1 = mode only, 2 = full), buy range measured from the bot.
 - New in 0.3.5: armor plates, Double Tap / Mule Kick buys, more than 5 bots.
 - Everything new in 0.3: power-ups, Fire Sale, box cooldown, names, the door money guard, last-alive mode and revive abandon.
 
