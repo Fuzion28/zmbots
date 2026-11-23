@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 7 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.6, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3.7, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -100,12 +100,14 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 | `zb_powerups` | 1 | Grab power-ups |
 | `zb_last_alive` | 1 | Last bot standing kites and revives only when safe |
 | `zb_keep_last` | 0 | 1 = bots stop shooting when one zombie is left, so you decide when the round ends (console: `set zb_cmd keeplast` toggles it) |
+| `zb_vote_yes` | 1 | 1 = bots vote yes on squad votes (Rampage Inducer, exfil, continue playing); 0 = the game default, bots vote no |
 
 ## Not tested yet
 - Bot health 500/1000 and the ammo refill.
 - The 2-bot revive limit and guarding.
 - Wander further.
 - Buying guns, Pack-a-Punch and the box.
+- New in 0.3.7: bots vote yes on squad votes, a downed bot stops re-pathing (possible fix for the FPS drop while a bot is down).
 - New in 0.3.6: compact HUD (zb_hud 1 = mode only, 2 = full), buy range measured from the bot.
 - New in 0.3.5: armor plates, Double Tap / Mule Kick buys, more than 5 bots.
 - Everything new in 0.3: power-ups, Fire Sale, box cooldown, names, the door money guard, last-alive mode and revive abandon.

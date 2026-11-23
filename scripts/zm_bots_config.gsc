@@ -34,6 +34,7 @@ autoexec init()
     level.zb_cfg_debug = getdvarint( @"zb_debug", 0 );                   // 1 = show the "zmbots ..." debug lines and the per-round stats lines
     level.zb_cfg_auto_teleport =getdvarint( @"zb_auto_teleport", 0 );   // not in the original (it never teleports): 1 = a bot 1500+ from you for 20 s teleports to you
     level.zb_cfg_keep_last = getdvarint( @"zb_keep_last", 0 );         // not in the original: 1 = bots stop shooting when one zombie is left (round fully spawned)
+    level.zb_cfg_vote_yes = getdvarint( @"zb_vote_yes", 1 );           // not in the original: 1 = bots vote yes (Rampage Inducer, exfil, continue playing)
     // ===================================================================================
 
     // clamps from the original
@@ -49,6 +50,10 @@ autoexec init()
         level.zb_cfg_mode = "follow";
     // the core reads level.zb_count about 14 s after the host spawns
     level.zb_count = level.zb_cfg_count;
+    // Bots answer every squad vote with this engine dvar, default 0 = no (srvbase script_162f01e3286930e2.gsc:1183,
+    // exfil script_499d04fa6ff12c91.gsc:1795, continue playing script_c1369b1abe9a0d1.gsc:4060).
+    if ( level.zb_cfg_vote_yes == 1 )
+        setdvar( @"hash_6e8b31590c83b6", 1 );
     if ( level.zb_cfg_fill == 1 )
         level thread apply_fill();
 }

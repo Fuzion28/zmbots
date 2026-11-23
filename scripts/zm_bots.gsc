@@ -136,6 +136,15 @@ bot_start()
         self.zb_host = host();
         if ( !isdefined( self.zb_host ) || !isalive( self ) )
             continue;
+        // a downed bot used to get a new follow/stay goal every 0.5 s; clear it once and wait (tester: FPS tanks while a bot is down, cause unverified)
+        if ( downed( self ) )
+        {
+            if ( !istrue( self.zb_down_clr ) )
+                self function_cb0d368fa87a2b78();
+            self.zb_down_clr = 1;
+            continue;
+        }
+        self.zb_down_clr = undefined;
         if ( bot_revive() )
             continue;
         if ( isdefined( self.zb_busy ) )
