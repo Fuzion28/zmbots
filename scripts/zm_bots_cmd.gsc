@@ -302,7 +302,7 @@ status()
             self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_pers ?? "allrounder" ) + " " + ( p.zb_mode ?? "?" ) + ( istrue( p.var_d0697a2251283e17 ) ? " ^1DOWN^7" : "" ) + " | hp " + p.health + " | K " + ( p.zb_kills ?? 0 ) + " D " + ( p.zb_downs ?? 0 ) + " R " + ( p.zb_revives ?? 0 ) );
 }
 
-// original bot_console_command_think: "set zb_cmd <stay|wander|follow|regroup|teleport|movehere|pers|status|help>" (+ keeplast, not in the original).
+// original bot_console_command_think: "set zb_cmd <stay|wander|follow|regroup|teleport|movehere|pers|status|help>" (+ keeplast and kick, not in the original).
 // getdvar/setdvar with @"name": FuzMenu zm_mod_menu.gsc:1153 (getdvar) and :91 (setdvar).
 // The order comes from the first human. regroup = everyone walks back to you (follow); teleport = the original's regroup.
 console_loop()
@@ -350,8 +350,10 @@ console_loop()
         }
         else if ( level.zb_cmdv == "add" && isdefined( level.zb_add ) )
             level thread [[ level.zb_add ]]();
+        else if ( level.zb_cmdv == "kick" )
+            level.zb_cmdh thread kick_bot();
         else
-            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: help | status | diag | stay | wander | wander_further | follow | regroup | teleport | movehere | pers | unstick | keeplast | add" );
+            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: help | status | diag | stay | wander | wander_further | follow | regroup | teleport | movehere | pers | unstick | keeplast | add | kick" );
     }
 }
 
@@ -362,6 +364,23 @@ diag()
     foreach ( p in level.players )
         if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) )
             self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_mode ?? "?" ) + " busy " + ( p.zb_busy ?? "-" ) + " stuck " + ( p.zb_mv_stage ?? 0 ) + " dist " + int( distance( p.origin, self.origin ) ) + " $" + ( isdefined( p.var_8b69ecbd466a79fa ) ? ( p.var_8b69ecbd466a79fa[ "score" ] ?? "?" ) : "?" ) + " buy: " + ( p.zb_buy_why ?? "-" ) );
+}
+
+// not in the original: kick the last bot added. Kick builtin function_af1903472dca798( entnum, reason ) with
+// getentitynumber function_937c3c41c638f604(), as the game kicks disconnected players (srvbase script_21a04df18edbd7c9.gsc:882)
+kick_bot()
+{
+    level.zb_kick = undefined;
+    foreach ( p in level.players )
+        if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) )
+            level.zb_kick = p;
+    if ( !isdefined( level.zb_kick ) )
+    {
+        self iprintlnbold( "^5Bots^7: no bot to kick" );
+        return;
+    }
+    self iprintlnbold( "^5Bots^7: kicked " + level.zb_kick.name );
+    function_af1903472dca798( level.zb_kick function_937c3c41c638f604(), &"hash_44a7d00c557627fb" );
 }
 
 // original "unstick" (bot_soft_reset): drop every goal and task, the bots pick a fresh one next tick
