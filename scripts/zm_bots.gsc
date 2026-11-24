@@ -58,6 +58,7 @@ spawn_bots()
     // Cursed / relic modes check every player that spawns in the first 10 s (dvar default 10000 ms, srvbase
     // script_60b9c6f799b0d5d8.gsc function_b46b00a6fd556694) and can end the match; a bot fails that check.
     // Spawning after the window skips it. shortcut: waits in every mode, gate on the gametype if the delay bothers.
+    level.zb_adding = 1; // add_bot refuses until the initial spawn is done
     wait 12;
     // level.zb_count may be set by the config module (zm_bots_config.gsc); 7 = full 8-player squad
     if ( !isdefined( level.zb_count ) )
@@ -80,6 +81,7 @@ spawn_bots()
         if ( !isdefined( level.zb_latent ) )
         {
             msg( "^1zmbots E no latent (zm_bots_client.gsc not linked)" ); // errors show even without zb_debug
+            level.zb_adding = undefined;
             return;
         }
         if ( isdefined( level.zb_added ) )
@@ -88,6 +90,7 @@ spawn_bots()
         if ( !isdefined( level.zb_bot ) )
         {
             msg( "^1zmbots E bot " + ( level.zb_i + 1 ) + " missing, lat " + level.zb_lat );
+            level.zb_adding = undefined;
             return;
         }
         level.zb_bot.zmbots = 1;
@@ -96,6 +99,7 @@ spawn_bots()
         level.zb_i = level.zb_i + 1;
         wait 1;
     }
+    level.zb_adding = undefined;
     level.zb_status = "^2" + level.zb_count + " bots ready";
 }
 
@@ -147,6 +151,7 @@ bot_start()
         self.zb_down_clr = undefined;
         if ( bot_revive() )
             continue;
+        self.zb_goal_p = undefined; // rev_goal cache: follow and modules set their own goals
         if ( isdefined( self.zb_busy ) )
             continue;
         if ( self.zb_mode == "stay" && isdefined( self.zb_stay_pos ) )
@@ -180,7 +185,8 @@ bot_revive()
     self.zb_rev = undefined;
     self.zb_guard = undefined;
     // zb_rev_wait: a revive given up because the bot was surrounded; zm_bots_move.gsc escape() moves it out meanwhile
-    if ( downed( self ) || istrue( self.zb_norevive ) || gettime() < ( self.zb_rev_wait ?? 0 ) )
+    // zb_rev_cd: a revive that timed out (not in the original), so a failing bot does not retry every 0.5 s
+    if ( downed( self ) || istrue( self.zb_norevive ) || gettime() < ( self.zb_rev_wait ?? 0 ) || gettime() < ( self.zb_rev_cd ?? 0 ) )
         return 0;
     foreach ( p in level.players )
         if ( p != self && downed( p ) && claimers( p, 0 ) < ( self.zb_pers === "medic" ? 3 : 2 ) && ( !isdefined( self.zb_rev ) || distance( self.origin, p.origin ) < distance( self.origin, self.zb_rev.origin ) ) )
@@ -198,16 +204,20 @@ bot_revive()
                 self.zb_guard = p;
         if ( !isdefined( self.zb_guard ) )
             return 0;
-        if ( !isdefined( self.zb_guard_off ) )
-            self.zb_guard_off = function_44e25da2d51a2988( ( 0, function_de284a0228a3400e( 360 ), 0 ) ) * 150; // anglestoforward * 150, as move.gsc wander
-        if ( distance( self.origin, self.zb_guard.origin + self.zb_guard_off ) > 120 )
-            self function_75794c5ddff5c061( self.zb_guard.origin + self.zb_guard_off, 100, "critical" );
+        // spot picked once per guarded player and snapped to the navmesh: an unreachable spot re-pathed every 0.5 s all round
+        if ( !isdefined( self.zb_guard_pos ) || !( self.zb_guard_of === self.zb_guard ) || distance( self.zb_guard_pos, self.zb_guard.origin ) > 300 )
+        {
+            self.zb_guard_of = self.zb_guard;
+            self.zb_guard_pos = function_df9f501a2a0cbf4( self.zb_guard.origin + function_44e25da2d51a2988( ( 0, function_de284a0228a3400e( 360 ), 0 ) ) * 150 ) ?? self.zb_guard.origin; // anglestoforward * 150, as move.gsc wander
+        }
+        if ( distance( self.origin, self.zb_guard_pos ) > 120 )
+            rev_goal( self.zb_guard_pos, 100 );
         return 1;
     }
-    self.zb_guard_off = undefined;
+    self.zb_guard_pos = undefined;
     if ( distance( self.origin, self.zb_rev.origin ) > 60 )
     {
-        self function_75794c5ddff5c061( self.zb_rev.origin, 24, "critical" );
+        rev_goal( self.zb_rev.origin, 48 );
         return 1;
     }
     self notify( #"zb_reviving" );
@@ -233,7 +243,20 @@ bot_revive()
         self.zb_revives = ( isdefined( self.zb_revives ) ? self.zb_revives : 0 ) + 1;
         self notify( #"zb_revived", self.zb_rev );
     }
+    else if ( downed( self.zb_rev ) && isalive( self ) && !downed( self ) ) // held 8.5 s, still down
+        self.zb_rev_cd = gettime() + 10000;
+    self.zb_goal_p = undefined;
     return 1;
+}
+
+// botsetscriptgoal only when the spot moved 32+ or after 3 s; the engine re-paths on every call (FPS suspect while someone is down)
+rev_goal( pos, r )
+{
+    if ( isdefined( self.zb_goal_p ) && distance( pos, self.zb_goal_p ) < 32 && gettime() < self.zb_goal_t )
+        return;
+    self.zb_goal_p = pos;
+    self.zb_goal_t = gettime() + 3000;
+    self function_75794c5ddff5c061( pos, r, "critical" );
 }
 
 // original bot_is_last_alive: no other player alive and up (level.zb_last for zm_bots_move.gsc)
@@ -280,10 +303,18 @@ add_bot()
         msg( "^5Bots^7: squad full" );
         return;
     }
+    // two adds at once shared level.zb_bot and both took over the same bot
+    if ( istrue( level.zb_adding ) )
+    {
+        msg( "^5Bots^7: a bot is still joining" );
+        return;
+    }
+    level.zb_adding = 1;
     level.zb_added = addbot( bot_name() );
     if ( isdefined( level.zb_added ) )
         level.zb_added thread [[ level.zb_latent ]]();
     wait_new_bot();
+    level.zb_adding = undefined;
     if ( !isdefined( level.zb_bot ) )
     {
         msg( "^5Bots^7: add failed" );

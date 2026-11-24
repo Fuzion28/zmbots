@@ -70,7 +70,7 @@ go()
     }
     self.zb_pu_until = gettime() + 10000;
     self.zb_pu_reset = 0;
-    while ( isdefined( self.zb_pu ) && active( self.zb_pu ) && gettime() < self.zb_pu_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && !any_downed() )
+    while ( isdefined( self.zb_pu ) && active( self.zb_pu ) && gettime() < self.zb_pu_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && !any_downed() && self.zb_busy === "powerup" )
     {
         if ( gettime() >= self.zb_pu_reset )
         {
@@ -83,8 +83,12 @@ go()
         self.zb_pu.zb_pu_fail = gettime() + 15000;
     else
         level.zb_status = "powerup grabbed by " + self.name;
-    self function_cb0d368fa87a2b78(); // botclearscriptgoal
-    self.zb_busy = undefined;
+    // zb_cmd unstick can free the bot and another module take it: clear only what is still ours
+    if ( self.zb_busy === "powerup" )
+    {
+        self function_cb0d368fa87a2b78(); // botclearscriptgoal
+        self.zb_busy = undefined;
+    }
 }
 
 // grabbed power-ups leave the active list (script_427ce33ec0c820cf.gsc:1107) before the entity may be deleted

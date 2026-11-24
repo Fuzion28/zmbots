@@ -116,7 +116,7 @@ escape()
         self [[ level.zb_chat ]]( self.zb_mv_kind == "last" ? "retreat_last" : "retreat_swarm", undefined );
     self.zb_mv_until = gettime() + ( self.zb_mv_kind == "last" ? 30000 : 4000 );
     self.zb_mv_pick = 0;
-    while ( gettime() < self.zb_mv_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) )
+    while ( gettime() < self.zb_mv_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && self.zb_busy === "escape" )
     {
         if ( gettime() >= self.zb_mv_pick || ( isdefined( self.zb_mv_goal ) && distance( self.origin, self.zb_mv_goal ) < 48 ) )
             if ( flee_pick() )
@@ -126,10 +126,14 @@ escape()
         if ( self.zb_mv_kind == "last" && ( self.zb_mv_n900 == 0 || !( self [[ level.zb_last ]]() ) ) )
             break;
     }
-    self function_cb0d368fa87a2b78(); // botclearscriptgoal
+    // zb_cmd unstick can free the bot and another module take it: clear only what is still ours
+    if ( self.zb_busy === "escape" )
+    {
+        self function_cb0d368fa87a2b78(); // botclearscriptgoal
+        self.zb_busy = undefined;
+    }
     self.zb_mv_goal = undefined;
     self.zb_mv_wgoal = undefined;
-    self.zb_busy = undefined;
     return 1;
 }
 
@@ -155,6 +159,7 @@ retreat()
     else
         return 0;
     self.zb_busy = self.zb_mv_kind == "health" ? "retreat" : "kite";
+    self.zb_mv_own = self.zb_busy;
     if ( self.zb_mv_kind == "health" )
     {
         level.zb_status = "move retreat " + self.name;
@@ -163,7 +168,7 @@ retreat()
     }
     self.zb_mv_until = gettime() + ( self.zb_mv_kind == "health" ? 20000 : 2500 );
     self.zb_mv_pick = 0;
-    while ( gettime() < self.zb_mv_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && !any_downed() )
+    while ( gettime() < self.zb_mv_until && isalive( self ) && !istrue( self.var_d0697a2251283e17 ) && !any_downed() && self.zb_busy === self.zb_mv_own )
     {
         // re-pick on a timer or at the spot (the original also re-picks when a zombie is ahead; no verified dot product here)
         if ( gettime() >= self.zb_mv_pick || ( isdefined( self.zb_mv_goal ) && distance( self.origin, self.zb_mv_goal ) < 48 ) )
@@ -176,11 +181,14 @@ retreat()
         if ( self.zb_mv_kind == "kite" && self.zb_mv_n430 == 0 )
             break;
     }
-    self function_cb0d368fa87a2b78(); // botclearscriptgoal
+    if ( self.zb_busy === self.zb_mv_own )
+    {
+        self function_cb0d368fa87a2b78(); // botclearscriptgoal
+        self.zb_busy = undefined;
+    }
     self.zb_mv_goal = undefined;
     self.zb_mv_wgoal = undefined;
     self.zb_mv_kitecd = gettime() + 600;
-    self.zb_busy = undefined;
     return 1;
 }
 
@@ -205,15 +213,18 @@ protect()
     self.zb_busy = "protect";
     level.zb_status = "move protect host " + self.name;
     self.zb_mv_until = gettime() + 10000;
-    while ( gettime() < self.zb_mv_until && isalive( self ) && isalive( self.zb_mv_host ) && !any_downed() && self.zb_mv_host hp() < 0.6 )
+    while ( gettime() < self.zb_mv_until && isalive( self ) && isalive( self.zb_mv_host ) && !any_downed() && self.zb_mv_host hp() < 0.6 && self.zb_busy === "protect" )
     {
         if ( distance( self.origin, self.zb_mv_host.origin ) > 150 )
             self function_75794c5ddff5c061( self.zb_mv_host.origin, 100, "critical" );
         wait 0.5;
     }
-    self function_cb0d368fa87a2b78();
+    if ( self.zb_busy === "protect" )
+    {
+        self function_cb0d368fa87a2b78();
+        self.zb_busy = undefined;
+    }
     self.zb_mv_wgoal = undefined;
-    self.zb_busy = undefined;
     return 1;
 }
 
@@ -331,8 +342,11 @@ unstuck()
             self.zb_busy = "unstuck";
             self function_75794c5ddff5c061( self.zb_mv_goal, 32, "critical" );
             wait 2;
-            self function_cb0d368fa87a2b78();
-            self.zb_busy = undefined;
+            if ( self.zb_busy === "unstuck" )
+            {
+                self function_cb0d368fa87a2b78();
+                self.zb_busy = undefined;
+            }
         }
     }
     else if ( self.zb_mv_stage == 2 && gettime() - self.zb_mv_anct > 10000 )

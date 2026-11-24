@@ -380,6 +380,8 @@ kick_bot()
         return;
     }
     self iprintlnbold( "^5Bots^7: kicked " + level.zb_kick.name );
+    if ( level.zb_box_bot === level.zb_kick ) // its buy thread dies without finish(): free the box for the others
+        level.zb_box_bot = undefined;
     function_af1903472dca798( level.zb_kick function_937c3c41c638f604(), &"hash_44a7d00c557627fb" );
 }
 

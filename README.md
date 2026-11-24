@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 7 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.8, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.3.9, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -107,6 +107,7 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 - The 2-bot revive limit and guarding.
 - Wander further.
 - Buying guns, Pack-a-Punch and the box.
+- New in 0.3.9: fewer path requests while a player is down (suspected FPS drop), two `add` commands no longer take over the same bot, a perk is no longer bought twice, the box is freed when its bot is kicked, and bots skip the box while holding their Pack-a-Punch gun.
 - New in 0.3.8: `set zb_cmd kick` kicks the last bot added.
 - New in 0.3.7: bots vote yes on squad votes, a downed bot stops re-pathing (possible fix for the FPS drop while a bot is down).
 - New in 0.3.6: compact HUD (zb_hud 1 = mode only, 2 = full), buy range measured from the bot.

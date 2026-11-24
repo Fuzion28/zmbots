@@ -223,6 +223,10 @@ pick_box()
         return 0;
     if ( isdefined( level.zb_box_bot ) && level.zb_box_bot != self )
         return 0;
+    // the box swaps the held gun: not while holding the gun upgraded at the PaP (original bot_should_take_weapon, reduced)
+    // shortcut: compares the weapon held 3 s after the PaP buy; if that is still the old one, this never matches
+    if ( isdefined( self.zb_pap_w ) && self function_e3b3cc459cc1f25b() === self.zb_pap_w )
+        return 0;
     self.zb_range = 1000;
     if ( ( self.zb_pers ?? "allrounder" ) == "gambler" )
         self.zb_range = 1500;
@@ -266,7 +270,8 @@ do_buy()
     wait 0.5;
     self function_aba9ac6f872dc502( "use", 0.5 ); // botpressbutton (core zm_bots.gsc:178)
     wait 3;
-    if ( !bought() && go_on() && isdefined( level.zb_fire ) && isdefined( self.zb_ia ) && isdefined( self.zb_ia.var_d8e3b07237845727 ) && isdefined( self.zb_ia.var_d8e3b07237845727[ 0 ] ) )
+    // zb_pts >= zb_pts0: points gone = paid (a perk is set only after the drink), so no second callback
+    if ( !bought() && self.zb_pts >= self.zb_pts0 && go_on() && isdefined( level.zb_fire ) && isdefined( self.zb_ia ) && isdefined( self.zb_ia.var_d8e3b07237845727 ) && isdefined( self.zb_ia.var_d8e3b07237845727[ 0 ] ) )
     {
         self.zb_cb = self.zb_ia.var_d8e3b07237845727[ 0 ]; // the interact's use callback (script_27623f7ac600060c.gsc:148/377)
         self thread [[ level.zb_fire ]]();
@@ -291,6 +296,7 @@ do_buy()
     if ( self.zb_kind == "pap" )
     {
         self.zb_pap_next = gettime() + 120000;
+        self.zb_pap_w = self function_e3b3cc459cc1f25b(); // pick_box: keep this gun
         chat( "pap", undefined );
         return finish( "buy pack-a-punch ok" );
     }
@@ -384,7 +390,8 @@ finish( text )
 {
     if ( level.zb_box_bot === self )
         level.zb_box_bot = undefined;
-    self.zb_busy = undefined;
+    if ( self.zb_busy === "buy" ) // zb_cmd unstick can free the bot and another module take it
+        self.zb_busy = undefined;
     self.zb_buy_why = text;
     level.zb_status = text;
     return 1;
