@@ -22,6 +22,7 @@ autoexec init()
     if ( !isdefined( level.zb_mods ) )
         level.zb_mods = [];
     level.zb_mods[ level.zb_mods.size ] = &think;
+    level.zb_wear = &wear;
     level thread humans_loop();
     level thread console_loop();
 }
@@ -352,8 +353,10 @@ console_loop()
             level thread [[ level.zb_add ]]();
         else if ( level.zb_cmdv == "kick" )
             level.zb_cmdh thread kick_bot();
+        else if ( level.zb_cmdv == "skin" )
+            level.zb_cmdh thread copy_skin();
         else
-            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: help | status | diag | stay | wander | wander_further | follow | regroup | teleport | movehere | pers | unstick | keeplast | add | kick" );
+            level.zb_cmdh iprintlnbold( "^5zb_cmd^7: help | status | diag | stay | wander | wander_further | follow | regroup | teleport | movehere | pers | unstick | keeplast | add | kick | skin" );
     }
 }
 
@@ -363,7 +366,7 @@ diag()
 {
     foreach ( p in level.players )
         if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) )
-            self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_mode ?? "?" ) + " busy " + ( p.zb_busy ?? "-" ) + " stuck " + ( p.zb_mv_stage ?? 0 ) + " dist " + int( distance( p.origin, self.origin ) ) + " $" + ( isdefined( p.var_8b69ecbd466a79fa ) ? ( p.var_8b69ecbd466a79fa[ "score" ] ?? "?" ) : "?" ) + " buy: " + ( p.zb_buy_why ?? "-" ) );
+            self iprintlnbold( "^5" + p.name + "^7 " + ( p.zb_mode ?? "?" ) + " busy " + ( p.zb_busy ?? "-" ) + " stuck " + ( p.zb_mv_stage ?? 0 ) + " dist " + int( distance( p.origin, self.origin ) ) + " $" + ( isdefined( p.var_8b69ecbd466a79fa ) ? ( p.var_8b69ecbd466a79fa[ "score" ] ?? "?" ) : "?" ) + " buy: " + ( p.zb_buy_why ?? "-" ) + " crew: " + ( p.zb_crew_msg ?? "-" ) );
 }
 
 // not in the original: kick the last bot added. Kick builtin function_af1903472dca798( entnum, reason ) with
@@ -383,6 +386,58 @@ kick_bot()
     if ( level.zb_box_bot === level.zb_kick ) // its buy thread dies without finish(): free the box for the others
         level.zb_box_bot = undefined;
     function_af1903472dca798( level.zb_kick function_937c3c41c638f604(), &"hash_44a7d00c557627fb" );
+}
+
+// not in the original: every bot wears your operator and skin (verified in game). Same steps as the game's skin swap
+// (srvbase script_7a62a760eea61a84.gsc:1585 sets operator+skin, script_18a132aeee23136e.gsc:763 swaps the models),
+// engine builtins only
+copy_skin()
+{
+    if ( !isdefined( self.var_e5cf5a2e5629693b ) || !isdefined( self.var_e5cf5a2e5629693b.operatorRef ) || !isdefined( self.var_e5cf5a2e5629693b.skinRef ) )
+    {
+        self iprintlnbold( "^5Bots^7: your operator is unknown" );
+        return;
+    }
+    level.zb_sk_op = self.var_e5cf5a2e5629693b.operatorRef;
+    level.zb_sk_skin = self.var_e5cf5a2e5629693b.skinRef;
+    wear_skin();
+    self iprintlnbold( "^5Bots^7: bots now wear your operator" );
+}
+
+// every bot wears level.zb_sk_op / level.zb_sk_skin
+wear_skin()
+{
+    foreach ( p in level.players )
+        if ( isdefined( p ) && isbot( p ) && isdefined( p.zmbots ) )
+            p wear( level.zb_sk_op, level.zb_sk_skin );
+}
+
+// self = bot. Also used by zm_bots_crew.gsc through level.zb_wear
+wear( op, skin )
+{
+    self function_2ba2cc67de912bc3( op, skin );
+    self.zb_sk_body = self function_a1856e0e9e6524ff();
+    self.zb_sk_head = self function_ad445df8f8bb0ffd();
+    self.zb_sk_view = self function_5139172ea65569df();
+    if ( isdefined( self.var_4fcfc4eb892efd45 ) )
+    {
+        self function_179ce2e5ebd24df9( self.var_4fcfc4eb892efd45 );
+        self.var_4fcfc4eb892efd45 = undefined;
+    }
+    self function_5b81c9390bb7fb43( self.zb_sk_body );
+    self function_73735bcb4b67ade4( self.zb_sk_view );
+    if ( isdefined( self.zb_sk_head ) )
+    {
+        self function_f64497359b565d83( self.zb_sk_head, "", 1 );
+        self.var_4fcfc4eb892efd45 = self.zb_sk_head;
+    }
+    // the game re-applies these on respawn (script_18a132aeee23136e.gsc:831)
+    if ( isdefined( self.var_e5cf5a2e5629693b ) )
+    {
+        self.var_e5cf5a2e5629693b.var_a7698e98303851bb = self.zb_sk_body;
+        self.var_e5cf5a2e5629693b.var_c48b0681d943ff69 = self.zb_sk_head;
+        self.var_e5cf5a2e5629693b.var_f50663daae9fc2b6 = self.zb_sk_view;
+    }
 }
 
 // original "unstick" (bot_soft_reset): drop every goal and task, the bots pick a fresh one next tick

@@ -4,7 +4,7 @@ AI teammates for BO7 Zombies on Kronos. Up to 7 bots join your squad: they fight
 
 This is a BO7 port of **Call of Duty Black Ops 2 Zombies Plutonium Bots V4.0** by supergamer9787, based on the original *ZM Bots* by RlKk01.
 
-**Version 0.3.9, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
+**Version 0.4.0, test version.** Some features are not tested in game yet (see "Not tested yet" below). Please report anything that breaks.
 
 ## Install
 
@@ -28,6 +28,7 @@ To remove the mod, delete the `kronos\mods\zmbots\` folder.
 - They revive downed players. At most 2 bots go for the same player; the others nearby guard them.
 - 500 health (1000 with Juggernog) and refilled reserve ammo, as in the original.
 - They put armor plates back in when they have plates and took no armor damage for 2 s.
+- If you play a story character (Weaver, Maya, Grey or Carver, or one of the four other story characters), each bot wears another member of that crew. Otherwise bots keep a random operator. Console: `set zb_cmd skin` dresses every bot in your operator and skin.
 - Each bot gets a name from the original list and a personality: slayer, medic, gambler, engineer or allrounder.
   - Medic buys Quick Revive first.
   - Gambler uses the Mystery Box more.
@@ -107,6 +108,7 @@ Settings are the dvars at the top of `scripts/zm_bots_config.gsc`. To change one
 - The 2-bot revive limit and guarding.
 - Wander further.
 - Buying guns, Pack-a-Punch and the box.
+- New in 0.4.0: bots switch to a wonder weapon they got from the box (they used to keep it holstered), and the story crew for the four other story characters (the Weaver crew is tested).
 - New in 0.3.9: fewer path requests while a player is down (suspected FPS drop), two `add` commands no longer take over the same bot, a perk is no longer bought twice, the box is freed when its bot is kicked, and bots skip the box while holding their Pack-a-Punch gun.
 - New in 0.3.8: `set zb_cmd kick` kicks the last bot added.
 - New in 0.3.7: bots vote yes on squad votes, a downed bot stops re-pathing (possible fix for the FPS drop while a bot is down).

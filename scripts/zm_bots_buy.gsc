@@ -334,9 +334,30 @@ box_take()
     if ( self function_e3b3cc459cc1f25b() === self.zb_w0 )
         return fail( "buy failed: box gun not taken" );
     self.zb_weapons_bought = ( self.zb_weapons_bought ?? 0 ) + 1;
+    self.zb_ww = self function_e3b3cc459cc1f25b();
+    if ( isdefined( self.zb_ww ) && isdefined( self.zb_ww.basename ) && issubstr( self.zb_ww.basename, "sat_ww_" ) )
+        self thread ww_hold();
     box_cd();
     chat( "box", undefined );
     return finish( "buy box gun ok" );
+}
+
+// not in the original: the bot AI drops back to its other gun after a box wonder weapon (tester: Mk2 taken, never fired),
+// so put it back in hand while it has ammo. switchtoweapon/hasweapon/getweaponammo* as FuzMenu uses them on players;
+// shortcut: unverified on bots, drop this if bots still never fire it
+ww_hold()
+{
+    self notify( #"zb_ww_hold" );
+    self endon( #"zb_ww_hold" );
+    self endon( #"disconnect" );
+    while ( isdefined( self.zb_ww ) && self hasweapon( self.zb_ww ) )
+    {
+        wait 2;
+        if ( !isalive( self ) || istrue( self.var_d0697a2251283e17 ) || isdefined( self.zb_busy ) || self function_e3b3cc459cc1f25b() === self.zb_ww )
+            continue;
+        if ( self getweaponammoclip( self.zb_ww ) + self getweaponammostock( self.zb_ww ) > 0 )
+            self switchtoweapon( self.zb_ww );
+    }
 }
 
 // original box cooldown (zm_bo2_bots.gsc:1251): round <=8 90-180 s, <=15 240-450 s, else 480-900 s; starter guns 20-40 s; gambler x0.5.
